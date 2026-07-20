@@ -1,0 +1,10 @@
+# Serves the static signup site with automatic HTTPS.
+# SITE_DOMAIN=localhost  -> https://localhost with a local cert (great for testing)
+# SITE_DOMAIN=your.domain -> Caddy fetches a real Let's Encrypt cert (needs 80/443 reachable)
+{$SITE_DOMAIN} {
+	root * /srv
+	encode gzip
+	file_server
+	# Unknown paths fall back to the signup page.
+	try_files {path} {path}/ /index.html
+}

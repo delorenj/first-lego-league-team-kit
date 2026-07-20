@@ -1,0 +1,22 @@
+# LEGO League Team Kit — portable self-host stack.
+# Caddy serves apps/web with automatic HTTPS. One command:  docker compose up -d
+# Runbook: ../../.claude/skills/deploy-team-site/references/docker-compose.md
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: lego-league-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:-localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../../apps/web:/srv:ro        # the site (index.html + your config.js)
+      - caddy_data:/data              # TLS certs — persist so you don't re-issue on restart
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

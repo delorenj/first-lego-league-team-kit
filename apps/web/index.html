@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Town LEGO League — Build. Code. Play.</title>
+<meta name="description" id="metaDesc" content="Sign up for your town's first FIRST LEGO League team for kindergartners. Grades K-2, ages 5-7. Build and code motorized LEGO models!">
+<meta property="og:title" id="ogTitle" content="Your Town LEGO League — Build. Code. Play.">
+<meta property="og:description" id="ogDesc" content="Your town's first LEGO robotics team for K-2 kids. Sign up now!">
+<meta property="og:url" id="ogUrl" content="">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#D01012; --yellow:#F6BE00; --blue:#0057A6; --green:#00873E;
+    --ink:#1a1a2e; --muted:#55556b; --paper:#FFFDF7;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Poppins',sans-serif;background:var(--paper);color:var(--ink);
+    -webkit-font-smoothing:antialiased;line-height:1.5;overflow-x:hidden;
+  }
+  .wrap{max-width:680px;margin:0 auto;padding:22px 20px 60px;position:relative;z-index:2}
+
+  /* ambient LEGO bricks drifting in the desktop margins (top-down, real studs) */
+  .ambient{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden;display:none}
+  @media (min-width:1040px){ .ambient{display:block} }
+  .float{position:absolute;opacity:.9}
+  .float.f1{left:4%;top:16%}
+  .float.f2{left:6%;top:62%}
+  .float.f3{right:4.5%;top:22%}
+  .float.f4{right:6%;top:68%}
+  .float.f5{left:9%;top:88%}
+  .float.f6{right:9%;top:90%}
+  .piece{position:relative;display:grid;gap:6px;padding:8px;grid-auto-rows:17px;
+    border:3px solid var(--ink);border-radius:8px;box-shadow:6px 6px 0 var(--ink)}
+  .piece .s{width:17px;height:17px;border-radius:50%;border:2.5px solid rgba(26,26,46,.85);
+    background:rgba(255,255,255,.15);box-shadow:inset 0 2px 2px rgba(255,255,255,.5),inset 0 -2px 3px rgba(0,0,0,.28)}
+  .p2{grid-template-columns:repeat(2,17px)} .p3{grid-template-columns:repeat(3,17px)} .p4{grid-template-columns:repeat(4,17px)}
+  .piece.red{background:var(--red)} .piece.yellow{background:var(--yellow)}
+  .piece.blue{background:var(--blue)} .piece.green{background:var(--green)}
+
+  /* the "brick forge": bricks assemble → gear (build) → laptop (code) → sword (play), looping.
+     Each brick = 5 face <i>, DIRECT children of the animated 3D plane (JS sets transform+bg),
+     so the spin can't flatten them — a nested preserve-3d cube would rasterize flat. */
+  .forge{position:relative;height:236px;margin:2px 0 8px;perspective:820px;display:flex;justify-content:center;align-items:center}
+  .plane{position:relative;width:1px;height:1px;transform-style:preserve-3d;animation:spin 12s linear infinite}
+  .face{position:absolute;top:50%;left:50%;display:block;backface-visibility:hidden;
+    transition:transform .8s cubic-bezier(.34,1.45,.5,1),opacity .5s ease,background .4s ease}
+  .face.f {width:14px;height:14px;border:2px solid var(--ink)}
+  .face.bk{width:14px;height:14px;filter:brightness(.5)}
+  .face.r {width:8px;height:14px;filter:brightness(.78)}
+  .face.l {width:8px;height:14px;filter:brightness(.66)}
+  .face.t {width:14px;height:8px;filter:brightness(1.2)}
+  @keyframes spin{from{transform:rotateX(-14deg) rotateY(0deg)}to{transform:rotateX(-14deg) rotateY(360deg)}}
+
+  /* stud strip header */
+  .studs{display:flex;gap:12px;margin-bottom:26px}
+  .stud{flex:1;height:26px;border-radius:6px;position:relative;transform-origin:top center}
+  .stud::before,.stud::after{content:'';position:absolute;top:-7px;width:22%;height:10px;border-radius:4px 4px 0 0;background:inherit}
+  .stud::before{left:16%}.stud::after{right:16%}
+  .bg-red{background:var(--red)}.bg-yellow{background:var(--yellow)}.bg-blue{background:var(--blue)}.bg-green{background:var(--green)}
+
+  .kicker{font-size:12px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:8px}
+  h1{font-size:clamp(40px,9vw,64px);font-weight:800;line-height:1.02;letter-spacing:-.01em;margin-bottom:14px}
+  h1 .b{color:var(--blue)}h1 .c{color:var(--red)}h1 .p{color:var(--green)}
+  h1 span{display:inline-block}
+  .sub{font-size:17px;color:var(--muted);margin-bottom:28px}
+  .sub strong{color:var(--ink)}
+
+  .chips{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:34px}
+  @media (max-width:480px){.chips{grid-template-columns:1fr}}
+  .chip{border:3px solid var(--ink);border-radius:12px;background:#fff;box-shadow:5px 5px 0 var(--ink);padding:14px 16px;transition:transform .16s,box-shadow .16s}
+  .chip:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink)}
+  .chip h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;display:flex;align-items:center;gap:8px;margin-bottom:4px}
+  .dot{width:12px;height:12px;border-radius:50%}
+  .chip p{font-size:14px;color:var(--muted)}.chip p strong{color:var(--ink)}
+
+  .form-card{border:3px solid var(--ink);border-radius:16px;background:#fff;box-shadow:7px 7px 0 var(--ink);padding:26px 22px 28px;margin-bottom:30px}
+  .form-card h2{font-size:24px;font-weight:800;margin-bottom:4px}
+  .form-card .spots{font-size:14px;color:var(--red);font-weight:600;margin-bottom:20px}
+
+  label{display:block;font-size:13px;font-weight:600;margin:16px 0 6px}
+  label .opt{font-weight:400;color:var(--muted)}
+  input[type=text],input[type=email],input[type=tel],textarea{
+    width:100%;font-family:inherit;font-size:16px;color:var(--ink);
+    border:2.5px solid var(--ink);border-radius:10px;padding:12px 14px;background:var(--paper);outline:none;transition:box-shadow .15s}
+  input:focus,textarea:focus{box-shadow:3px 3px 0 var(--blue)}
+  textarea{resize:vertical;min-height:72px}
+
+  /* isometric brick grade buttons (6 studs, staggered piston + angled hop) */
+  .grades{display:flex;gap:12px}
+  .grade-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;
+    font-family:inherit;cursor:pointer;background:none;border:none;padding:8px 0 2px;--bc:#d7dce6}
+  .isobrick{width:82px;height:auto;overflow:visible;transform-origin:50% 82%}
+  .isobrick .fc{stroke:var(--ink);stroke-width:2;stroke-linejoin:round;fill:var(--bc)}
+  .isobrick .fL{filter:brightness(.72)} .isobrick .fR{filter:brightness(.87)}
+  .isobrick .s{stroke:var(--ink);stroke-width:1.5;fill:var(--bc);filter:brightness(1.14);transform:translateY(1.5px)}
+  .grade-btn .glabel{font-size:15px;font-weight:800;color:var(--muted);transition:color .18s,transform .16s}
+  .grade-btn:hover .isobrick{transform:translateY(-3px)}
+  .grade-btn.sel.red{--bc:var(--red)} .grade-btn.sel.blue{--bc:var(--blue)} .grade-btn.sel.green{--bc:var(--green)}
+  .grade-btn.sel .glabel{color:var(--ink);transform:scale(1.12)}
+  .grade-btn.sel .s{animation:piston .5s cubic-bezier(.34,1.7,.5,1) both}
+  .grade-btn.sel .s2{animation-delay:.03s} .grade-btn.sel .s3{animation-delay:.06s}
+  .grade-btn.sel .s4{animation-delay:.09s} .grade-btn.sel .s5{animation-delay:.12s} .grade-btn.sel .s6{animation-delay:.15s}
+  @keyframes piston{0%{transform:translateY(1.5px)}26%{transform:translateY(4px)}66%{transform:translateY(-9px)}100%{transform:translateY(-5px)}}
+  .grade-btn.sel .isobrick{animation:hop .6s cubic-bezier(.3,1.35,.5,1) both}
+  @keyframes hop{
+    0%{transform:translateY(0) rotate(0deg)}
+    24%{transform:translateY(-13px) rotate(-6deg)}   /* launch: up and angled */
+    52%{transform:translateY(0) rotate(4deg)}          /* lands off-level */
+    70%{transform:translateY(-4px) rotate(-3deg)}      /* jostle */
+    85%{transform:translateY(0) rotate(1.5deg)}        /* settle wobble */
+    100%{transform:translateY(0) rotate(0deg)}
+  }
+
+  .submit{width:100%;margin-top:26px;font-family:inherit;font-size:18px;font-weight:800;color:#fff;background:var(--red);
+    border:3px solid var(--ink);border-radius:12px;padding:16px 0 14px;cursor:pointer;box-shadow:5px 5px 0 var(--ink);
+    position:relative;transition:transform .12s,box-shadow .12s;letter-spacing:.02em}
+  .submit:hover:not(:disabled){transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink)}
+  .submit:active:not(:disabled){transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+  .submit:disabled{opacity:.7;cursor:wait}
+
+  .hp{position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden}
+
+  .msg{margin-top:16px;font-size:14px;font-weight:600;border-radius:10px;padding:12px 14px;display:none}
+  .msg.err{display:block;background:#fdecec;border:2px solid var(--red);color:var(--red)}
+  .msg.err a{color:var(--red)}
+
+  /* success state */
+  .success{display:none;text-align:center;padding:26px 10px 12px}
+  .success .bricks{font-size:44px;margin-bottom:10px;letter-spacing:8px;display:flex;justify-content:center}
+  .success .bricks span{display:inline-block;animation:pop .5s cubic-bezier(.34,1.7,.5,1) both}
+  .success .bricks span:nth-child(2){animation-delay:.09s}
+  .success .bricks span:nth-child(3){animation-delay:.18s}
+  .success .bricks span:nth-child(4){animation-delay:.27s}
+  @keyframes pop{0%{transform:translateY(24px) scale(.4);opacity:0}70%{transform:translateY(-8px) scale(1.15)}100%{transform:translateY(0) scale(1);opacity:1}}
+  .success h2{font-size:28px;font-weight:800;margin-bottom:8px}
+  .success p{font-size:15px;color:var(--muted);max-width:420px;margin:0 auto 6px}
+  .success p strong{color:var(--ink)}
+
+  footer{font-size:11.5px;color:#9a9aac;text-align:center;line-height:1.6;margin-top:8px}
+  footer a{color:var(--blue)}
+
+  /* entrance animations (play on load) */
+  .anim .stud{animation:drop .55s cubic-bezier(.3,1.5,.5,1) both}
+  .anim .stud:nth-child(1){animation-delay:.02s}
+  .anim .stud:nth-child(2){animation-delay:.10s}
+  .anim .stud:nth-child(3){animation-delay:.18s}
+  .anim .stud:nth-child(4){animation-delay:.26s}
+  @keyframes drop{0%{transform:translateY(-46px) scaleY(.6);opacity:0}60%{transform:translateY(6px) scaleY(1.05)}100%{transform:translateY(0) scaleY(1);opacity:1}}
+  .anim h1 span{animation:letterIn .5s cubic-bezier(.34,1.6,.5,1) both}
+  .anim h1 span:nth-child(1){animation-delay:.30s}
+  .anim h1 span:nth-child(2){animation-delay:.40s}
+  .anim h1 span:nth-child(3){animation-delay:.50s}
+  @keyframes letterIn{0%{transform:translateY(30px) rotate(-6deg);opacity:0}70%{transform:translateY(-5px) rotate(2deg)}100%{transform:translateY(0) rotate(0);opacity:1}}
+
+  .float{animation:bob 7s ease-in-out infinite}
+  .float.f2{animation-duration:8.5s;animation-delay:-2s}
+  .float.f3{animation-duration:9s;animation-delay:-1s}
+  .float.f4{animation-duration:7.8s;animation-delay:-3s}
+  .float.f5{animation-duration:10s;animation-delay:-1.5s}
+  .float.f6{animation-duration:8s;animation-delay:-4s}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+
+  /* accessibility: honor reduced-motion */
+  @media (prefers-reduced-motion:reduce){
+    .plane{animation:none}
+    .face{transition:none}
+    .float{animation:none}
+    .anim .stud,.anim h1 span,.success .bricks span,.grade-btn.sel .s,.grade-btn.sel .isobrick{animation:none}
+    .grade-btn.sel .s{transform:translateY(-5px)}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<!-- ambient LEGO bricks drifting in the desktop margins (decorative; hidden on mobile) -->
+<div class="ambient" aria-hidden="true">
+  <div class="float f1"><span class="piece p2 red"    style="transform:rotate(-13deg)"><i class="s"></i><i class="s"></i><i class="s"></i><i class="s"></i></span></div>
+  <div class="float f2"><span class="piece p4 blue"   style="transform:rotate(9deg)"><i class="s"></i><i class="s"></i><i class="s"></i><i class="s"></i><i class="s"></i><i class="s"></i><i class="s"></i><i class="s"></i></span></div>
+  <div class="float f3"><span class="piece p3 green"  style="transform:rotate(-7deg)"><i class="s"></i><i class="s"></i><i class="s"></i><i class="s"></i><i class="s"></i><i class="s"></i></span></div>
+  <div class="float f4"><span class="piece p2 yellow" style="transform:rotate(14deg)"><i class="s"></i><i class="s"></i><i class="s"></i><i class="s"></i></span></div>
+  <div class="float f5"><span class="piece p3 red"    style="transform:rotate(6deg)"><i class="s"></i><i class="s"></i><i class="s"></i></span></div>
+  <div class="float f6"><span class="piece p2 yellow" style="transform:rotate(-10deg)"><i class="s"></i><i class="s"></i><i class="s"></i><i class="s"></i></span></div>
+</div>
+
+<div class="wrap" id="wrap">
+
+  <div class="studs">
+    <div class="stud bg-red"></div><div class="stud bg-yellow"></div>
+    <div class="stud bg-blue"></div><div class="stud bg-green"></div>
+  </div>
+
+  <!-- brick forge: pieces assemble into a gear, then a laptop, then a sword, looping -->
+  <div class="forge" aria-hidden="true">
+    <div class="plane" id="plane"></div>
+  </div>
+
+  <div class="kicker" id="kicker">New for Fall 2026 &bull; Your Town, ST</div>
+  <h1><span class="b">BUILD.</span> <span class="c">CODE.</span> <span class="p">PLAY.</span></h1>
+  <p class="sub"><span id="townPossessive">Your town's</span> first <strong>FIRST&reg; LEGO&reg; League team for kindergartners</strong> is launching this fall. Kids team up to build and code motorized LEGO models, solve playful missions, and celebrate at a regional expo.</p>
+
+  <div class="chips">
+    <div class="chip"><h3><span class="dot bg-red"></span>Who</h3><p><strong>Grades K&ndash;2, ages 5&ndash;7.</strong> No experience needed.</p></div>
+    <div class="chip"><h3><span class="dot bg-blue"></span>What</h3><p>The new <strong>FIRST LEGO League K&ndash;2</strong> program with LEGO&reg; Education kits.</p></div>
+    <div class="chip"><h3><span class="dot bg-green"></span>When</h3><p><strong>1 hour a week</strong> after school, September through winter.</p></div>
+    <div class="chip"><h3><span class="dot bg-yellow"></span>Cost</h3><p>About <strong><span id="cost">$125</span> per child</strong>, all materials included.</p></div>
+  </div>
+
+  <div class="form-card" id="formCard">
+    <h2>Grab a spot 🧱</h2>
+    <div class="spots">Only <span id="spots">8</span> spots on the team — first come, first built.</div>
+    <form id="signupForm" novalidate>
+      <label for="parentName">Parent / guardian name</label>
+      <input type="text" id="parentName" name="parentName" required autocomplete="name">
+
+      <label for="parentEmail">Email</label>
+      <input type="email" id="parentEmail" name="parentEmail" required autocomplete="email">
+
+      <label for="parentPhone">Phone <span class="opt">(optional)</span></label>
+      <input type="tel" id="parentPhone" name="parentPhone" autocomplete="tel">
+
+      <label for="childName">Child's first name</label>
+      <input type="text" id="childName" name="childName" required>
+
+      <label>Child's grade this fall</label>
+      <div class="grades" id="grades">
+        <button type="button" class="grade-btn red" data-v="K">
+          <svg class="isobrick" viewBox="0 -16 96 94" aria-hidden="true">
+            <polygon class="fc fL" points="0,24 48,48 48,78 0,54"/>
+            <polygon class="fc fR" points="48,48 96,24 96,54 48,78"/>
+            <polygon class="fc fT" points="48,0 96,24 48,48 0,24"/>
+            <g class="studs">
+              <ellipse class="s s1" cx="52" cy="10" rx="8" ry="4.6"/><ellipse class="s s2" cx="36" cy="18" rx="8" ry="4.6"/>
+              <ellipse class="s s3" cx="76" cy="22" rx="8" ry="4.6"/><ellipse class="s s4" cx="20" cy="26" rx="8" ry="4.6"/>
+              <ellipse class="s s5" cx="60" cy="30" rx="8" ry="4.6"/><ellipse class="s s6" cx="44" cy="38" rx="8" ry="4.6"/>
+            </g>
+          </svg>
+          <span class="glabel">K</span>
+        </button>
+        <button type="button" class="grade-btn blue" data-v="1st">
+          <svg class="isobrick" viewBox="0 -16 96 94" aria-hidden="true">
+            <polygon class="fc fL" points="0,24 48,48 48,78 0,54"/>
+            <polygon class="fc fR" points="48,48 96,24 96,54 48,78"/>
+            <polygon class="fc fT" points="48,0 96,24 48,48 0,24"/>
+            <g class="studs">
+              <ellipse class="s s1" cx="52" cy="10" rx="8" ry="4.6"/><ellipse class="s s2" cx="36" cy="18" rx="8" ry="4.6"/>
+              <ellipse class="s s3" cx="76" cy="22" rx="8" ry="4.6"/><ellipse class="s s4" cx="20" cy="26" rx="8" ry="4.6"/>
+              <ellipse class="s s5" cx="60" cy="30" rx="8" ry="4.6"/><ellipse class="s s6" cx="44" cy="38" rx="8" ry="4.6"/>
+            </g>
+          </svg>
+          <span class="glabel">1st</span>
+        </button>
+        <button type="button" class="grade-btn green" data-v="2nd">
+          <svg class="isobrick" viewBox="0 -16 96 94" aria-hidden="true">
+            <polygon class="fc fL" points="0,24 48,48 48,78 0,54"/>
+            <polygon class="fc fR" points="48,48 96,24 96,54 48,78"/>
+            <polygon class="fc fT" points="48,0 96,24 48,48 0,24"/>
+            <g class="studs">
+              <ellipse class="s s1" cx="52" cy="10" rx="8" ry="4.6"/><ellipse class="s s2" cx="36" cy="18" rx="8" ry="4.6"/>
+              <ellipse class="s s3" cx="76" cy="22" rx="8" ry="4.6"/><ellipse class="s s4" cx="20" cy="26" rx="8" ry="4.6"/>
+              <ellipse class="s s5" cx="60" cy="30" rx="8" ry="4.6"/><ellipse class="s s6" cx="44" cy="38" rx="8" ry="4.6"/>
+            </g>
+          </svg>
+          <span class="glabel">2nd</span>
+        </button>
+      </div>
+
+      <label for="notes">Anything we should know? <span class="opt">(optional)</span></label>
+      <textarea id="notes" name="notes" placeholder="Allergies, schedule conflicts, sibling interest, favorite LEGO set..."></textarea>
+
+      <div class="hp"><label for="website">Website</label><input type="text" id="website" name="website" tabindex="-1" autocomplete="off"></div>
+
+      <button type="submit" class="submit" id="submitBtn">Sign us up! &rarr;</button>
+      <div class="msg" id="errMsg">Hmm, that didn't go through. Try again in a minute, or email <a href="mailto:coach@example.com" id="errEmail">coach@example.com</a> and we'll add you by hand.</div>
+    </form>
+  </div>
+
+  <div class="form-card success" id="successCard">
+    <div class="bricks"><span>🔴</span><span>🟡</span><span>🔵</span><span>🟢</span></div>
+    <h2>You're on the list!</h2>
+    <p><strong id="echoName">Your builder</strong> is officially in the queue. We'll email you within a few days with meeting details and next steps.</p>
+    <p>Questions in the meantime? <strong id="successEmail">coach@example.com</strong></p>
+  </div>
+
+  <footer>
+    A parent-led community team for <span id="footSchool">your school</span> families.<br>
+    Part of the official FIRST&reg; LEGO&reg; League <span id="footSeason">2026&ndash;27</span> season &bull; <a href="https://firstlegoleague.org" rel="noopener">firstlegoleague.org</a><br>
+    LEGO&reg; and FIRST&reg; are trademarks of their respective owners. Organized by volunteer parents; not sponsored by or affiliated with FIRST, the LEGO Group, or <span id="discSchool">your school</span>.
+  </footer>
+
+</div>
+
+<!-- Per-team config (git-ignored; a fresh clone has none → the page falls back to neutral defaults). -->
+<script src="config.js"></script>
+<script>
+  var c = window.TEAM_CONFIG || {};
+
+  // Use the configured value only when it's a non-empty value; otherwise the neutral default.
+  function cfg(v, d) { return (v === undefined || v === null || v === '') ? d : v; }
+
+  (function applyConfig() {
+    var townOrTeam   = cfg(c.townOrTeam,   'Your Town');
+    var region       = cfg(c.region,       'Your Town, ST');
+    var seasonLabel  = cfg(c.seasonLabel,  'Fall 2026');
+    var seasonName   = cfg(c.seasonName,   '2026–27');
+    var coachEmail   = cfg(c.coachEmail,   'coach@example.com');
+    var spots        = cfg(c.spots,        8);
+    var costPerChild = cfg(c.costPerChild, '$125');
+    var schoolName   = cfg(c.schoolName,   'your school');
+    var siteUrl      = cfg(c.siteUrl,      '');
+
+    var titleText = townOrTeam + ' LEGO League — Build. Code. Play.';
+    document.title = titleText;
+
+    function setText(id, text) { var el = document.getElementById(id); if (el) el.textContent = text; }
+    function setAttr(id, attr, v) { var el = document.getElementById(id); if (el) el.setAttribute(attr, v); }
+
+    setAttr('ogTitle', 'content', titleText);
+    setAttr('metaDesc', 'content', 'Sign up for ' + townOrTeam + "'s first FIRST LEGO League team for kindergartners. Grades K-2, ages 5-7. Build and code motorized LEGO models!");
+    setAttr('ogDesc', 'content', townOrTeam + "'s first LEGO robotics team for K-2 kids. Only " + spots + ' spots. Sign up now!');
+
+    // og:url is optional; drive it from config or drop it entirely (never a baked-in personal URL).
+    var ogUrl = document.getElementById('ogUrl');
+    if (ogUrl) {
+      if (siteUrl) { ogUrl.setAttribute('content', siteUrl); }
+      else if (ogUrl.parentNode) { ogUrl.parentNode.removeChild(ogUrl); }
+    }
+
+    setText('kicker', 'New for ' + seasonLabel + ' • ' + region);
+    setText('townPossessive', townOrTeam + "'s");
+    setText('cost', costPerChild);
+    setText('spots', spots);
+    setText('footSchool', schoolName);
+    setText('footSeason', seasonName);
+    setText('discSchool', schoolName);
+
+    var errEmail = document.getElementById('errEmail');
+    if (errEmail) { errEmail.setAttribute('href', 'mailto:' + coachEmail); errEmail.textContent = coachEmail; }
+    setText('successEmail', coachEmail);
+
+    // Optional per-team brand colors override the four LEGO brick colors.
+    if (c.colors) {
+      var root = document.documentElement;
+      ['red', 'yellow', 'blue', 'green'].forEach(function (k) {
+        if (c.colors[k]) root.style.setProperty('--' + k, c.colors[k]);
+      });
+    }
+  })();
+
+  // Signup Adapter Contract: POST the fixed payload to the one configurable endpoint.
+  var WEBHOOK    = (window.TEAM_CONFIG && TEAM_CONFIG.signupEndpoint) || '';
+  var OPTIMISTIC = !!c.optimisticSubmit;
+  var grade = '';
+
+  var gradeBtns = document.querySelectorAll('.grade-btn');
+  gradeBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      gradeBtns.forEach(function (x) { x.classList.remove('sel'); });
+      void b.offsetWidth;   // reflow so re-selecting the same brick replays the piston + hop
+      b.classList.add('sel');
+      grade = b.dataset.v;
+    });
+  });
+
+  document.getElementById('signupForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var f = e.target;
+    var err = document.getElementById('errMsg');
+    err.classList.remove('err');
+
+    // honeypot: silently drop bot submissions
+    if (f.website.value) { return; }
+
+    var required = ['parentName', 'parentEmail', 'childName'];
+    for (var i = 0; i < required.length; i++) {
+      var el = f[required[i]];
+      if (!el.value.trim()) { el.focus(); return; }
+    }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.parentEmail.value.trim())) { f.parentEmail.focus(); return; }
+
+    // No endpoint configured (e.g. a fresh clone) → point families at the coach's email, don't POST.
+    if (!WEBHOOK) { err.classList.add('err'); return; }
+
+    var btn = document.getElementById('submitBtn');
+    btn.disabled = true; btn.textContent = 'Snapping bricks...';
+
+    var body = new URLSearchParams({
+      parentName: f.parentName.value.trim(),
+      parentEmail: f.parentEmail.value.trim(),
+      parentPhone: f.parentPhone.value.trim(),
+      childName: f.childName.value.trim(),
+      childGrade: grade || 'not specified',
+      notes: f.notes.value.trim(),
+      source: 'web'
+    });
+
+    function onOk() {
+      document.getElementById('echoName').textContent = f.childName.value.trim() || 'Your builder';
+      document.getElementById('formCard').style.display = 'none';
+      var s = document.getElementById('successCard');
+      s.style.display = 'block';
+      s.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    function onFail() {
+      err.classList.add('err');
+      btn.disabled = false; btn.innerHTML = 'Sign us up! &rarr;';
+    }
+
+    if (OPTIMISTIC) {
+      // Endpoint can't return CORS headers (e.g. a Google Apps Script Web App): fire-and-assume-OK.
+      fetch(WEBHOOK, { method: 'POST', mode: 'no-cors', body: body }).then(onOk).catch(onFail);
+    } else {
+      fetch(WEBHOOK, { method: 'POST', body: body })
+        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(onOk).catch(onFail);
+    }
+  });
+
+  // ── brick forge: pieces assemble → GEAR (build) → LAPTOP (code) → SWORD (play) → loop ──
+  (function () {
+    var plane = document.getElementById('plane');
+    if (!plane) return;
+    var CELL = 16; // 14px brick + 2px gap
+    var STEEL = '#93a9c4', STEELLITE = '#d2e0ef', Y = '#F6BE00', R = '#D01012', G = '#00873E',
+        INK = '#1a1a2e', SCR = '#26406b', GRN = '#2aa15e', BLU = '#4d90d8';
+
+    // PLAY — sword
+    var sword = [
+      [3,0,STEELLITE],
+      [3,1,STEEL],[3,2,STEEL],[3,3,STEELLITE],[3,4,STEEL],[3,5,STEEL],[3,6,STEEL],[3,7,STEEL],
+      [2,7,STEEL],[4,7,STEEL],
+      [1,8,Y],[2,8,Y],[3,8,Y],[4,8,Y],[5,8,Y],
+      [3,9,R],[3,10,R],
+      [3,11,G]
+    ];
+    // CODE — open laptop: dark screen with colored code lines on a steel base
+    var laptop = [
+      [2,0,INK],[3,0,INK],[4,0,INK],[5,0,INK],[6,0,INK],[7,0,INK],[8,0,INK],
+      [2,1,INK],[3,1,GRN],[4,1,GRN],[5,1,GRN],[6,1,SCR],[7,1,SCR],[8,1,INK],
+      [2,2,INK],[3,2,BLU],[4,2,BLU],[5,2,BLU],[6,2,BLU],[7,2,SCR],[8,2,INK],
+      [2,3,INK],[3,3,Y],[4,3,Y],[5,3,SCR],[6,3,SCR],[7,3,SCR],[8,3,INK],
+      [2,4,INK],[3,4,INK],[4,4,INK],[5,4,INK],[6,4,INK],[7,4,INK],[8,4,INK],
+      [1,5,STEEL],[2,5,STEEL],[3,5,STEEL],[4,5,STEEL],[5,5,STEEL],[6,5,STEEL],[7,5,STEEL],[8,5,STEEL],[9,5,STEEL],
+      [0,6,STEELLITE],[1,6,STEEL],[2,6,STEEL],[3,6,STEEL],[4,6,STEEL],[5,6,STEEL],[6,6,STEEL],[7,6,STEEL],[8,6,STEEL],[9,6,STEEL],[10,6,STEELLITE]
+    ];
+    // BUILD — gear/cog, generated so teeth stay symmetric (steel body, lighter teeth)
+    var gear = (function () {
+      var cells = [], cx = 5, cy = 5, teeth = 8, bodyR = 3.3, toothR = 4.45, hole = 1.7;
+      for (var y = 0; y < 11; y++) for (var x = 0; x < 11; x++) {
+        var dx = x - cx, dy = y - cy, r = Math.sqrt(dx * dx + dy * dy);
+        if (r < hole) continue; // center hub hole
+        var onBody = r <= bodyR;
+        var onTooth = r <= toothR && Math.cos(teeth * Math.atan2(dy, dx)) > 0.36;
+        if (onBody || onTooth) cells.push([x, y, (onTooth && r > bodyR - 0.2) ? STEELLITE : STEEL]);
+      }
+      return cells;
+    })();
+
+    function centroid(s) { var a = 99, b = -99, c = 99, d = -99; s.forEach(function (p) { a = Math.min(a, p[0]); b = Math.max(b, p[0]); c = Math.min(c, p[1]); d = Math.max(d, p[1]); }); return { cc: (a + b) / 2, cr: (c + d) / 2 }; }
+    var shapes = [gear, laptop, sword], N = 0;
+    shapes.forEach(function (s) { N = Math.max(N, s.length); });
+    // each brick = 5 face <i> as DIRECT children of the plane; JS drives transform + color.
+    var FACE = [['f', ' translateZ(4px)'], ['bk', ' rotateY(180deg) translateZ(4px)'],
+                ['r', ' rotateY(90deg) translateZ(7px)'], ['l', ' rotateY(-90deg) translateZ(7px)'],
+                ['t', ' rotateX(90deg) translateZ(7px)']];
+    var bricks = [];
+    for (var i = 0; i < N; i++) {
+      var faces = [];
+      for (var k = 0; k < 5; k++) { var el = document.createElement('i'); el.className = 'face ' + FACE[k][0]; plane.appendChild(el); faces.push(el); }
+      bricks.push(faces);
+    }
+    function place(i, tx, ty, rz) {
+      var pre = 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) translate(-50%,-50%)' + (rz ? ' rotateZ(' + rz + 'deg)' : '');
+      for (var k = 0; k < 5; k++) { bricks[i][k].style.transform = pre + FACE[k][1]; }
+    }
+    function paint(i, col) { for (var k = 0; k < 5; k++) { bricks[i][k].style.background = col; } }
+    function fade(i, o) { for (var k = 0; k < 5; k++) { bricks[i][k].style.opacity = o; } }
+    function scatterXY(i) { var ang = i * 2.399963, rad = 92 + (i % 6) * 14; return [Math.cos(ang) * rad, Math.sin(ang) * rad, (i * 57) % 360]; }
+    function form(shape) {
+      var ct = centroid(shape);
+      for (var i = 0; i < N; i++) {
+        if (i < shape.length) { var p = shape[i]; place(i, (p[0] - ct.cc) * CELL, (p[1] - ct.cr) * CELL, 0); paint(i, p[2]); fade(i, '1'); }
+        else { var s = scatterXY(i); place(i, s[0], s[1], s[2]); fade(i, '0'); }
+      }
+    }
+    function burst() { for (var i = 0; i < N; i++) { var s = scatterXY(i); place(i, s[0], s[1], s[2]); fade(i, (i % 3 === 0 ? '0' : '.5')); } }
+    var idx = 0, timers = [];
+    function cycle() {
+      form(shapes[idx % shapes.length]);
+      timers.push(setTimeout(burst, 2500));
+      idx++;
+      timers.push(setTimeout(cycle, 3300));
+    }
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { form(gear); } else { cycle(); }
+  })();
+
+  // intro entrance animation (studs snap in, headline springs up) — plays once on load
+  var wrap = document.getElementById('wrap');
+  function playIntro() { wrap.classList.remove('anim'); void wrap.offsetWidth; wrap.classList.add('anim'); }
+  playIntro();
+</script>
+</body>
+</html>
