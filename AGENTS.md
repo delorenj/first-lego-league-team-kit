@@ -34,8 +34,10 @@ secret), it's wrong — parameterize it instead.
 | Neo-brutalist signup SPA | ✅ productized, config-driven | `apps/web/` |
 | Team config (the one file a coach edits) | ✅ real | `apps/web/config.js` |
 | Clinton signup site — Jarad's live instance (mission 1) | ✅ **LIVE** at `lego.delo.sh` (personal homelab — see §6, dev/example-only) | `apps/web/` + git-ignored `config.js` |
+| **Turnkey installer** (`install.sh`) — writes config + deploys; email & Compose paths full, DO & Traefik scaffolded | ✅ real | `install.sh` + `docs/INSTALL.md` |
 | Docker Compose deploy (Caddy + auto-HTTPS) | ✅ runnable today | `deploy/compose/` |
-| Deploy skill (triage + 3 runbooks) | ✅ real | `.claude/skills/deploy-team-site/` |
+| Traefik reverse-proxy deploy (parameterized, BYO-infra) | ✅ template + runbook | `deploy/traefik/` |
+| Deploy skill (triage + runbooks) | ✅ real, now fronts `install.sh` | `.claude/skills/deploy-team-site/` |
 | Outreach email templates | ✅ drafts | `recruiting/emails/` |
 | Print flyer (PDF) | ✅ static asset | `recruiting/flyer/` |
 | Original prototype (do not ship) | 📦 archived | `REMOTE_SESSION_CONTEXT/` |
@@ -159,11 +161,26 @@ which triages by "do you want to own the data?" / "do you have a domain?" / "fre
 ## 9. Roadmap
 
 **Now (v0 — done):** config-driven site with the animated brick design system, Compose deploy, LLM-guided deploy skill, emails, flyer asset. **Open-sourced (Apache-2.0)** as `delorenj/first-lego-league-team-kit` — a charity give-it-away kit: any parent takes everything (site, flyer, emails) and hosts it themselves.
-**Next — the turnkey installer (v0.1, headline goal):** a **standalone, dependency-light interactive installer** (an `install.sh` / TUI a non-technical parent runs *directly* — "press enter, answer a couple of questions, it just works"), that offers and then *executes* the hosting choice for them: **self-host behind a reverse proxy (Traefik) + tunnel**, **DigitalOcean** (droplet / App Platform), other cloud, or **zero-backend static + a form service that just emails the coach the signup**. Containerized, no fuss to bring up. This generalizes today's LLM-guided `deploy-team-site` skill into something runnable *without* an LLM, and promotes the currently-personal Traefik pattern into a **parameterized, shippable** option (never Jarad's personal `delo.sh`/tunnel as a default — §8).
+**Next — the turnkey installer (v0.1, headline goal): ✅ shipped (`install.sh`).** A standalone,
+dependency-light (bash + coreutils + curl; Docker only for the self-host path) interactive installer a
+non-technical parent runs *directly* — welcome → collect team basics → write `apps/web/config.js` →
+hosting menu → run the chosen path → verify → next steps. Supports `--help`, a non-interactive/flags/env
+mode (testable + power-user), `curl | bash` with clone-offer, and is idempotent (backs up an existing
+config). Paths: **email/form-service** (Formspree or Google Apps Script — sets `optimisticSubmit`
+correctly; then static-host guidance) and **Docker Compose** (writes `deploy/compose/.env`, `docker
+compose up -d`) are **full end-to-end**; **DigitalOcean** and **BYO Traefik + tunnel** (parameterized —
+never `delo.sh`; `deploy/traefik/`) are **scaffolded** — config written/validated, then a manual runbook,
+with a clean extension seam (add a path = one `deploy_<name>()` + one line in `run_path`). It generalizes
+the LLM-guided `deploy-team-site` skill into a no-LLM tool (the skill now fronts it) and promotes the
+personal Traefik pattern into a shippable, parameterized option (§8). *Remaining installer work:* wire
+full auto-deploy for DO (`doctl`) and finish the Vercel path.
 **Then (v0.2):** `services/api` (SQLite + coach email notification + `/api/roster`) as the reference own-your-data adapter; roster/admin view (authed); flyer generator (config → PDF w/ QR); strip the Clinton example into `presets/` so first run is neutral.
 **Distribution (v1):** ✅ public GitHub repo + Apache-2.0 license + warm `README`/`CONTRIBUTING`/`CODE_OF_CONDUCT` done. Remaining: harden the quickstart, cut a tagged release, and make the installer cover every live path.
 
-**Recommended immediate step:** build the interactive installer above — it's the thing that makes the kit genuinely turnkey for a non-technical coach. Drive it through `master-builder`.
+**Recommended immediate step:** the turnkey installer (`install.sh`) is now built with two full paths
+(email, Compose) and two scaffolded (DO, Traefik). Next highest-leverage work: (a) `services/api` as
+the own-your-data adapter so the Compose path can offer a built-in backend, and (b) full DO auto-deploy
+via `doctl`. Drive both through `master-builder`.
 
 ---
 

@@ -1,0 +1,35 @@
+# LEGO League Team Kit — Traefik reverse-proxy path (parameterized, bring-your-own-infra).
+#
+# Drops a tiny nginx container serving apps/web onto an EXISTING external Traefik network.
+# This is the shippable, generalized version of the "put a static site behind my Traefik +
+# Cloudflare Tunnel" pattern — but it never assumes anyone's personal domain or network.
+# YOU supply SITE_DOMAIN, PROXY_NETWORK, and CERT_RESOLVER (see .env.example / README.md).
+#
+# Prereqs: you already run Traefik with an external network (default name: "proxy") and a
+# configured certresolver (or a Cloudflare Tunnel terminating TLS in front of it).
+#
+# Runbook: ./README.md      Validate:  docker compose --env-file .env config
+services:
+  web:
+    image: nginx:alpine
+    container_name: lego-league-web
+    restart: unless-stopped
+    volumes:
+      - ../../apps/web:/usr/share/nginx/html:ro   # your site (index.html + your config.js)
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=${PROXY_NETWORK:-proxy}"
+      # HTTP router (a tunnel may terminate TLS in front, so this alone can be enough)
+      - "traefik.http.routers.lego.rule=Host(`${SITE_DOMAIN:?set SITE_DOMAIN in .env}`)"
+      - "traefik.http.routers.lego.entrypoints=websecure"
+      - "traefik.http.routers.lego.tls=true"
+      - "traefik.http.routers.lego.tls.certresolver=${CERT_RESOLVER:-letsencrypt}"
+      - "traefik.http.services.lego.loadbalancer.server.port=80"
+
+networks:
+  # The external network your Traefik already attaches to. Rename via PROXY_NETWORK in .env.
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK:-proxy}

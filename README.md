@@ -32,6 +32,23 @@ no lock-in. It's yours.
 
 ## Make it yours (quickstart)
 
+**The one-command way — just run the installer** 🧱
+
+```bash
+git clone https://github.com/delorenj/first-lego-league-team-kit.git
+cd first-lego-league-team-kit
+./install.sh          # answer a few questions → it writes your config AND puts the site online
+```
+
+`install.sh` needs nothing but bash + curl (Docker only if you pick the self-host path). It asks you
+a handful of plain questions — all about *you, the coach* (town, school, your email, spots, cost) —
+writes `apps/web/config.js`, then walks you through hosting: **email me the signups** (no server),
+**self-host with Docker**, **DigitalOcean**, or **your own reverse proxy**. Press **Enter** to take
+the smart default anywhere. Full guide: **[docs/INSTALL.md](docs/INSTALL.md)**.
+
+<details>
+<summary>Prefer to do it by hand?</summary>
+
 ```bash
 # 1. Your team, in one file
 cp apps/web/config.example.js apps/web/config.js   # edit: town, school, coach email, spots, cost…
@@ -42,11 +59,13 @@ docker compose up -d                               # → your site, with automat
 
 # 3. Point the flyer's QR at your live URL, print it, and go recruit. 🧱
 ```
+</details>
 
-**Not a techie? That's the whole point.** Ask any AI assistant (Claude, ChatGPT, …) to
-*"run the deploy-team-site skill in this repo"* and it'll ask you a couple of plain
-questions — *Do you want to own the data? Do you have a domain? Want it free?* — and walk
-you through the rest, then test a real signup with you.
+**Not a techie? That's the whole point.** Run **`./install.sh`** above — it's built for exactly
+this. Or, if you'd rather be walked through it conversationally, ask any AI assistant (Claude,
+ChatGPT, …) to *"run the deploy-team-site skill in this repo"* and it'll ask you the same couple of
+plain questions — *Do you want to own the data? Do you have a domain? Want it free?* — and can run
+the installer for you, then test a real signup together.
 
 | Deploy path | Owns your data? | Good for |
 | --- | --- | --- |
