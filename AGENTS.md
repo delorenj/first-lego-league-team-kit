@@ -158,12 +158,12 @@ which triages by "do you want to own the data?" / "do you have a domain?" / "fre
 
 ## 9. Roadmap
 
-**Now (v0 — done):** config-driven site, Compose deploy, deploy skill, emails, flyer asset.
-**Next (v0.1):** `services/api` (SQLite + coach notification + `/api/roster`); wire Compose to it as the reference adapter; success-page copy from config.
-**Then (v0.2):** roster/admin view (authed); Vercel path + managed DB; flyer generator (config → PDF w/ QR).
-**Distribution (v1):** `README` quickstart hardened; strip Clinton example into a `presets/` so first run is neutral; GitHub release + template-repo flag; deploy skill covers all live paths.
+**Now (v0 — done):** config-driven site with the animated brick design system, Compose deploy, LLM-guided deploy skill, emails, flyer asset. **Open-sourced (Apache-2.0)** as `delorenj/first-lego-league-team-kit` — a charity give-it-away kit: any parent takes everything (site, flyer, emails) and hosts it themselves.
+**Next — the turnkey installer (v0.1, headline goal):** a **standalone, dependency-light interactive installer** (an `install.sh` / TUI a non-technical parent runs *directly* — "press enter, answer a couple of questions, it just works"), that offers and then *executes* the hosting choice for them: **self-host behind a reverse proxy (Traefik) + tunnel**, **DigitalOcean** (droplet / App Platform), other cloud, or **zero-backend static + a form service that just emails the coach the signup**. Containerized, no fuss to bring up. This generalizes today's LLM-guided `deploy-team-site` skill into something runnable *without* an LLM, and promotes the currently-personal Traefik pattern into a **parameterized, shippable** option (never Jarad's personal `delo.sh`/tunnel as a default — §8).
+**Then (v0.2):** `services/api` (SQLite + coach email notification + `/api/roster`) as the reference own-your-data adapter; roster/admin view (authed); flyer generator (config → PDF w/ QR); strip the Clinton example into `presets/` so first run is neutral.
+**Distribution (v1):** ✅ public GitHub repo + Apache-2.0 license + warm `README`/`CONTRIBUTING`/`CODE_OF_CONDUCT` done. Remaining: harden the quickstart, cut a tagged release, and make the installer cover every live path.
 
-**Recommended immediate step:** run a BMAD **product brief** then **PRD** for the kit (`bmad-product-brief` → `bmad-prd`) so the roadmap has real acceptance criteria before `services/api` is built. Then hand epics to `master-builder`.
+**Recommended immediate step:** build the interactive installer above — it's the thing that makes the kit genuinely turnkey for a non-technical coach. Drive it through `master-builder`.
 
 ---
 

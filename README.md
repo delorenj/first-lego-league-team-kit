@@ -1,56 +1,79 @@
-# 🧱 LEGO League Team Kit
+# 🧱 FIRST LEGO League Team Kit
 
-**A turnkey kit for starting a FIRST® LEGO® League team at your school — and filling the roster.**
-A stylish mobile signup site, a print flyer, outreach emails, and a roster view. Edit one config
-file, pick a deploy path, and a non-technical parent can be live in an afternoon — with an LLM to
-walk them through it.
+**A free, open-source kit for starting a FIRST® LEGO® League team at your school —
+and actually filling the roster.**
 
-> Built by a kindergarten dad starting Clinton, NJ's first K–2 team. Everything's parameterized so
-> it's *your* team in one file.
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache_2.0-blue.svg)](LICENSE)
+&nbsp;•&nbsp; Made by a volunteer dad, given away so any parent can do the same.
+
+You get a stylish mobile **signup site**, a print **flyer**, ready-to-send **outreach
+emails**, and a few **one-afternoon deploy paths** — self-host it, put it in the cloud,
+or run it with no server at all. Edit **one file** with your town's details, pick how
+you want to host it, and you're live. No account on anyone's service, no monthly fee,
+no lock-in. It's yours.
+
+> **Why this exists.** I'm a kindergarten dad who set out to start Clinton, NJ's first
+> K–2 team and needed to find 8 kids. I built this to do it — then realized every town
+> needs the same thing. So here it is, free, for you. Fill your roster. Have fun. 🤖
+
+---
 
 ## What's in the box
-- **Signup site** (`apps/web/`) — the neo-brutalist "BUILD. CODE. PLAY." page. Mobile-first (every visitor arrives via a flyer QR), config-driven, honeypot + validation, graceful email fallback.
-- **Flyer** (`recruiting/flyer/`) — print-ready 8.5×11 with a QR to your signup page.
-- **Outreach emails** (`recruiting/emails/`) — a school/HSA pitch and a co-coach invite, fill-in-the-blanks.
-- **Deploy paths** (`deploy/`) — self-host with Docker Compose, one-click Vercel, or zero-backend static + form service.
-- **Roster/admin + self-host API** — on the roadmap (`services/api/`, `AGENTS.md` §9).
 
-## Quickstart
+- **Signup site** (`apps/web/`) — a mobile-first "BUILD. CODE. PLAY." page with a
+  playful animated LEGO-brick vibe, honeypot spam protection, inline validation, and a
+  graceful email fallback. Everything town-specific comes from one config file.
+- **Print flyer** (`recruiting/flyer/`) — an 8.5×11 you can hand out at back-to-school
+  night, with a QR code to your signup page.
+- **Outreach emails** (`recruiting/emails/`) — a school/HSA pitch and a co-coach invite,
+  fill-in-the-blanks.
+- **Deploy paths** (`deploy/`) — self-host with Docker Compose (auto-HTTPS), a cloud
+  one-click, or zero-backend static + a form service that just emails you signups.
+
+## Make it yours (quickstart)
+
 ```bash
-# 1. Make it your team
-cp apps/web/config.example.js apps/web/config.js   # then edit: town, school, coach email, spots, cost…
+# 1. Your team, in one file
+cp apps/web/config.example.js apps/web/config.js   # edit: town, school, coach email, spots, cost…
 
-# 2. Get it online — easiest self-host:
-cd deploy/compose && cp .env.example .env          # set SITE_DOMAIN (or leave "localhost" to test)
+# 2. Get it online — easiest self-host (needs Docker):
+cd deploy/compose && cp .env.example .env          # set your domain, or leave "localhost" to test
 docker compose up -d                               # → your site, with automatic HTTPS
 
-# 3. Point the flyer QR at your live URL, print, and recruit.
+# 3. Point the flyer's QR at your live URL, print it, and go recruit. 🧱
 ```
-**Not technical? Ask your LLM assistant to run the `deploy-team-site` skill** — it asks a couple of
-questions and walks you through the best path, then tests a real signup with you.
+
+**Not a techie? That's the whole point.** Ask any AI assistant (Claude, ChatGPT, …) to
+*"run the deploy-team-site skill in this repo"* and it'll ask you a couple of plain
+questions — *Do you want to own the data? Do you have a domain? Want it free?* — and walk
+you through the rest, then test a real signup with you.
 
 | Deploy path | Owns your data? | Good for |
 | --- | --- | --- |
-| Static + form service | via Formspree/Google | no server, fastest, free |
-| Docker Compose | ✅ your own box | data ownership, a Pi/NAS/VPS |
-| Vercel | cloud (roadmap) | one-click cloud, no server |
+| Static + form service | via Formspree / Google | no server, fastest, free |
+| Docker Compose | ✅ your own box | data ownership, a Pi / NAS / cheap VPS |
+| Cloud (Vercel, etc.) | managed | one-click, no server *(expanding — see roadmap)* |
 
-Full guides: `.claude/skills/deploy-team-site/` · Config reference: `…/references/configure.md`
+Full guides live in `.claude/skills/deploy-team-site/`.
 
-## Repo map
-```
-apps/web/          the signup site (index.html + config.js)
-recruiting/        flyer + outreach emails
-deploy/            compose / vercel + the deploy skill's home
-services/api/      self-host backend (roadmap)
-AGENTS.md          project charter for AI agents  ← start here if you're building
-```
+## A note on kids & trademarks (please keep these)
 
-## Good-neighbor defaults
-- **Kids' data:** the form asks for a child's *first name* and grade only — the minimum to contact a family. Keep it that way; tell parents where signups go and delete them at season's end.
-- **Trademark:** every page ships the disclaimer *"not sponsored by or affiliated with FIRST, the LEGO Group, or the school"* and the ® marks. Leave them in. FIRST® and LEGO® belong to their owners.
+- **Privacy first.** The form asks for a child's *first name* and grade only, plus a
+  parent's contact — the minimum to reach a family. Please keep it that way, tell
+  parents where signups go, and delete them at season's end.
+- **Trademarks.** Every page ships the disclaimer *"not sponsored by or affiliated with
+  FIRST, the LEGO Group, or the school"* and the ® marks. FIRST® and LEGO® belong to
+  their owners; this is a volunteer community project. Leave those in.
 
-## Building on this
-`AGENTS.md` is the canonical charter (architecture, the signup-adapter contract, the design system,
-the roadmap). Drive design + development through the **`master-builder`** agent. Formal planning runs
-through BMAD (`_bmad-output/`); the board lives in Plane (`momo`).
+## Want to help? 💛
+
+This is a charity effort and contributions of *every* kind are welcome — including from
+people who don't write code. Better words, a nicer flyer, one more deploy path, or just
+telling us what confused you when you tried it. Start with
+**[CONTRIBUTING.md](CONTRIBUTING.md)** (and be kind — see
+[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)). Building on it? `AGENTS.md` is the full charter.
+
+## License
+
+[Apache License 2.0](LICENSE) — take it, change it, deploy it, share it. Just keep the
+notice. Go find your eight kids. 🧱🤖
