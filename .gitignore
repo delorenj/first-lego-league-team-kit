@@ -8,3 +8,15 @@
 # Per-deployment site config — a team's own endpoint/email, like .env. Not shipped.
 # The committed template is apps/web/config.example.js.
 apps/web/config.js
+
+# The kit ships its OWN Claude Code tooling (a machine-global gitignore excludes .claude/).
+# Re-include only the two product artifacts — the orchestrator agent and the deploy skill —
+# and keep everything else in .claude/ ignored (local settings, the BMAD skill cache, etc.).
+!.claude/
+.claude/*
+!.claude/agents/
+.claude/agents/*
+!.claude/agents/master-builder.md
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/deploy-team-site/
