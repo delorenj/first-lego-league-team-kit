@@ -5,6 +5,7 @@ and actually filling the roster.**
 
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache_2.0-blue.svg)](LICENSE)
 &nbsp;•&nbsp; Made by a volunteer dad, given away so any parent can do the same.
+&nbsp;•&nbsp; **[Homepage + live demo →](https://delorenj.github.io/first-lego-league-team-kit/)**
 
 You get a stylish mobile **signup site**, a print **flyer**, ready-to-send **outreach
 emails**, and a few **one-afternoon deploy paths** — self-host it, put it in the cloud,
@@ -27,8 +28,10 @@ no lock-in. It's yours.
   night, with a QR code to your signup page.
 - **Outreach emails** (`recruiting/emails/`) — a school/HSA pitch and a co-coach invite,
   fill-in-the-blanks.
-- **Deploy paths** (`deploy/`) — self-host with Docker Compose (auto-HTTPS), a cloud
-  one-click, or zero-backend static + a form service that just emails you signups.
+- **Deploy paths** (`deploy/`, `services/api/`) — zero-backend static + a form service
+  that emails you signups; self-host with Docker Compose (auto-HTTPS), optionally with a
+  **built-in signup backend so you own your data**; or one-click to **DigitalOcean**
+  (a Droplet *or* free App Platform static hosting). The installer drives all of them.
 
 ## Make it yours (quickstart)
 
@@ -69,11 +72,17 @@ the installer for you, then test a real signup together.
 
 | Deploy path | Owns your data? | Good for |
 | --- | --- | --- |
-| Static + form service | via Formspree / Google | no server, fastest, free |
-| Docker Compose | ✅ your own box | data ownership, a Pi / NAS / cheap VPS |
-| Cloud (Vercel, etc.) | managed | one-click, no server *(expanding — see roadmap)* |
+| **Static + form service** | via Formspree / Google | no server, fastest, free |
+| **Docker Compose** | ✅ your own box | a Pi / NAS / cheap VPS |
+| **Docker Compose + built-in backend** | ✅ your box (SQLite + private roster) | own your data, no third party |
+| **DigitalOcean — Droplet** | ✅ your droplet | one-click cloud server, owns its data |
+| **DigitalOcean — App Platform** | managed (static) | free cloud hosting, no server to run |
+| **Your own Traefik + tunnel** | ✅ your box | you already run a reverse proxy |
+| Vercel | managed | *(roadmap)* |
 
-Full guides live in `.claude/skills/deploy-team-site/`.
+The **[installer](docs/INSTALL.md)** does every ✅/one-click path for you; the DigitalOcean paths use
+DigitalOcean's `doctl` CLI. Full guides live in `.claude/skills/deploy-team-site/` and
+[`docs/deploy/`](docs/deploy/).
 
 ## A note on kids & trademarks (please keep these)
 

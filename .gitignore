@@ -9,6 +9,10 @@
 # The committed template is apps/web/config.example.js.
 apps/web/config.js
 
+# Per-team filled outreach (a coach's real name/school/URL) — emails, social posts, etc.
+# The committed templates are recruiting/**/*.md; personal *.filled.md copies stay local, like config.js.
+recruiting/**/*.filled.md
+
 # The kit ships its OWN Claude Code tooling (a machine-global gitignore excludes .claude/).
 # Re-include only the two product artifacts — the orchestrator agent and the deploy skill —
 # and keep everything else in .claude/ ignored (local settings, the BMAD skill cache, etc.).
@@ -20,3 +24,4 @@ apps/web/config.js
 !.claude/skills/
 .claude/skills/*
 !.claude/skills/deploy-team-site/
+.hallmark/

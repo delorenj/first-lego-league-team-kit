@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIRST LEGO League Team Kit — Build. Code. Play. Coach.</title>
+<meta name="description" content="A free, open-source kit for starting a FIRST® LEGO® League team at your school — signup site, print flyer, outreach emails, and a one-afternoon installer. Made by a volunteer dad, given away so any parent can do the same.">
+<meta property="og:title" content="FIRST LEGO League Team Kit — one dad, eight spots, your town next">
+<meta property="og:description" content="A free, open-source kit to start a FIRST® LEGO® League team at your school and actually fill the roster. Edit one file, run one installer, go recruit.">
+<meta property="og:url" content="https://delorenj.github.io/first-lego-league-team-kit/">
+<meta property="og:image" content="https://delorenj.github.io/first-lego-league-team-kit/og.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://delorenj.github.io/first-lego-league-team-kit/og.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧱</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>document.documentElement.className += ' js';</script>
+<style>
+  /* Hallmark · macrostructure: instruction-booklet story rail (custom) · genre: playful
+   * theme: studied-DNA (source: apps/web/index.html — the kit's own neo-brutalist LEGO brick system)
+   * pre-emit critique: P5 H4 E4 S5 R4 V5 · nav: minimal wordmark bar · footer: quiet fine-print */
+  :root{
+    --red:#D01012; --yellow:#F6BE00; --blue:#0057A6; --green:#00873E;
+    --ink:#1a1a2e; --muted:#55556b; --paper:#FFFDF7; --bc:#d7dce6;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{overflow-x:clip}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Poppins',sans-serif;background:var(--paper);color:var(--ink);
+    -webkit-font-smoothing:antialiased;line-height:1.55;
+  }
+  .skip{position:absolute;left:-9999px;top:0;background:#fff;border:3px solid var(--ink);border-radius:10px;padding:8px 14px;font-weight:700;z-index:50}
+  .skip:focus{left:12px;top:12px}
+  a{color:var(--blue)}
+  :focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:6px}
+  /* focus ring must stay visible on ink surfaces (WCAG 1.4.11) */
+  .codebrick :focus-visible,.backcover :focus-visible,footer :focus-visible{outline-color:var(--yellow)}
+  .vh{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+  /* ── top bar ─────────────────────────────────────────────────────────── */
+  .topbar{max-width:1100px;margin:0 auto;padding:16px 20px 10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .brand{font-weight:800;font-size:15px;letter-spacing:.01em}
+  .topbar .spacer{flex:1}
+  .chip{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    border:2.5px solid var(--ink);border-radius:8px;background:#fff;padding:4px 10px;color:var(--ink);text-decoration:none}
+  .chip.gh{background:var(--ink);color:var(--paper);box-shadow:3px 3px 0 rgba(26,26,46,.25);transition:transform .12s,box-shadow .12s}
+  .chip.gh:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 rgba(26,26,46,.3)}
+
+  /* four-color stud strip (identical grammar to the signup site) */
+  .studs{display:flex;gap:12px;max-width:1100px;margin:6px auto 0;padding:0 20px}
+  .stud{flex:1;height:26px;border-radius:6px;position:relative;transform-origin:top center}
+  .stud::before,.stud::after{content:'';position:absolute;top:-7px;width:22%;height:10px;border-radius:4px 4px 0 0;background:inherit}
+  .stud::before{left:16%}.stud::after{right:16%}
+  .bg-red{background:var(--red)}.bg-yellow{background:var(--yellow)}.bg-blue{background:var(--blue)}.bg-green{background:var(--green)}
+
+  /* ambient LEGO bricks in the desktop margins (decorative) */
+  .ambient{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden;display:none}
+  @media (min-width:1180px){ .ambient{display:block} }
+  .float{position:absolute;opacity:.9;animation:bob 8s ease-in-out infinite}
+  .float.f1{left:3.5%;top:20%}
+  .float.f2{left:5%;top:66%;animation-duration:9.5s;animation-delay:-2s}
+  .float.f3{right:4%;top:58%;animation-duration:8.6s;animation-delay:-1s}
+  .float.f4{right:6%;top:16%;animation-duration:10s;animation-delay:-3s}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+  .piece{position:relative;display:grid;gap:6px;padding:8px;grid-auto-rows:17px;
+    border:3px solid var(--ink);border-radius:8px;box-shadow:6px 6px 0 var(--ink)}
+  .piece .s{width:17px;height:17px;border-radius:50%;border:2.5px solid rgba(26,26,46,.85);
+    background:rgba(255,255,255,.15);box-shadow:inset 0 2px 2px rgba(255,255,255,.5),inset 0 -2px 3px rgba(0,0,0,.28)}
+  .p2{grid-template-columns:repeat(2,17px)} .p3{grid-template-columns:repeat(3,17px)}
+  .piece.red{background:var(--red)} .piece.yellow{background:var(--yellow)}
+  .piece.blue{background:var(--blue)} .piece.green{background:var(--green)}
+
+  main{position:relative;z-index:2}
+
+  /* ── hero ────────────────────────────────────────────────────────────── */
+  .hero{max-width:1100px;margin:0 auto;padding:44px 20px 30px;display:grid;grid-template-columns:11fr 9fr;gap:36px;align-items:center;position:relative}
+  .hero::before{ /* faint baseplate dot grid behind the hero only */
+    content:'';position:absolute;inset:0;z-index:-1;
+    background-image:radial-gradient(rgba(26,26,46,.07) 2.5px,transparent 2.5px);
+    background-size:34px 34px;
+    -webkit-mask-image:linear-gradient(180deg,#000 60%,transparent);mask-image:linear-gradient(180deg,#000 60%,transparent)}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:12px}
+  h1{font-size:clamp(40px,4.8vw,56px);font-weight:800;line-height:1.04;letter-spacing:-.01em;margin-bottom:16px}
+  @media (max-width:900px){ h1{font-size:clamp(32px,9.4vw,54px)} }
+  h1 span{display:inline-block}
+  h1 .w1{color:var(--blue)} h1 .w2{color:var(--red)} h1 .w3{color:var(--green)}
+  .sub{font-size:17px;color:var(--muted);max-width:56ch}
+  .sub strong{color:var(--ink)}
+  .cta-row{display:flex;gap:14px;flex-wrap:wrap;margin:26px 0 8px}
+  .btn{display:inline-block;font-family:inherit;font-size:17px;font-weight:800;text-decoration:none;text-align:center;
+    border:3px solid var(--ink);border-radius:12px;padding:14px 22px 12px;cursor:pointer;box-shadow:5px 5px 0 var(--ink);
+    transition:transform .12s,box-shadow .12s;letter-spacing:.02em}
+  .btn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink)}
+  .btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+  .btn.primary{background:var(--red);color:#fff}
+  .btn.ghost{background:#fff;color:var(--ink)}
+  .also{font-size:13.5px;color:var(--muted);margin-bottom:14px}
+  .statstrip{font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+    border-top:2.5px dashed rgba(26,26,46,.25);padding-top:12px;max-width:52ch}
+
+  /* the 2×4 roster brick (isometric SVG — an 8-stud extension of the signup site's brick grammar) */
+  .hero-brick{display:flex;flex-direction:column;align-items:center;gap:14px}
+  .isobrick2x4{width:min(380px,100%);height:auto;overflow:visible;transform-origin:50% 70%}
+  .isobrick2x4 .fc{stroke:var(--ink);stroke-width:2.5;stroke-linejoin:round;fill:var(--bc)}
+  .isobrick2x4 .fL{filter:brightness(.72)} .isobrick2x4 .fR{filter:brightness(.87)}
+  .isobrick2x4 .st{stroke:var(--ink);stroke-width:2;fill:var(--bc);filter:brightness(1.14);transform:translateY(1.5px)}
+  .isobrick2x4 .st.on{transform:translateY(-5px)}
+  .isobrick2x4 .st.c0{fill:var(--red)}.isobrick2x4 .st.c1{fill:var(--yellow)}
+  .isobrick2x4 .st.c2{fill:var(--blue)}.isobrick2x4 .st.c3{fill:var(--green)}
+  .isobrick2x4 .st.pop{animation:piston .5s cubic-bezier(.34,1.7,.5,1) both}
+  @keyframes piston{0%{transform:translateY(1.5px)}26%{transform:translateY(4px)}66%{transform:translateY(-9px)}100%{transform:translateY(-5px)}}
+  .isobrick2x4.hop{animation:hop .6s cubic-bezier(.3,1.35,.5,1) both}
+  @keyframes hop{
+    0%{transform:translateY(0) rotate(0deg)}
+    24%{transform:translateY(-13px) rotate(-5deg)}
+    52%{transform:translateY(0) rotate(3deg)}
+    70%{transform:translateY(-4px) rotate(-2deg)}
+    85%{transform:translateY(0) rotate(1deg)}
+    100%{transform:translateY(0) rotate(0deg)}
+  }
+  .counter{font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+    border:2.5px solid var(--ink);border-radius:9px;background:#fff;box-shadow:4px 4px 0 var(--ink);padding:6px 14px}
+
+  /* ── the step rail ───────────────────────────────────────────────────── */
+  .steps{max-width:820px;margin:26px auto 0;padding:0 20px;list-style:none}
+  .step{position:relative;padding:34px 0 34px 86px}
+  .step::before{ /* dotted connector rail */
+    content:'';position:absolute;left:31px;top:0;bottom:0;border-left:3px dotted rgba(26,26,46,.3)}
+  .step:first-child::before{top:34px}
+  .step:last-child::before{bottom:auto;height:34px}
+  .stepnum{position:absolute;left:0;top:34px;width:62px;height:62px;display:flex;align-items:center;justify-content:center;
+    font-size:30px;font-weight:800;background:#fff;border:3px solid var(--ink);border-radius:14px;
+    box-shadow:5px 5px 0 var(--ink);transform:rotate(-2deg)}
+  .step:nth-child(even) .stepnum{transform:rotate(2deg)}
+  .step h2{font-size:clamp(24px,3.4vw,32px);font-weight:800;line-height:1.12;margin-bottom:14px}
+  .step .lead{font-size:16px;color:var(--muted);max-width:60ch;margin-bottom:18px}
+  .step .lead strong{color:var(--ink)}
+
+  /* step 1 — corkboard note */
+  .note{position:relative;background:#fff;border:3px solid var(--ink);border-radius:12px;box-shadow:6px 6px 0 var(--ink);
+    padding:26px 24px 22px;max-width:560px;--tilt:-1.5deg;margin:14px 0 30px}
+  .note .pin{position:absolute;top:-13px;left:50%;transform:translateX(-50%);width:26px;height:26px;border-radius:50%;
+    background:var(--red);border:3px solid var(--ink);box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
+  .note p{font-size:15.5px}
+  .note p strong{color:var(--ink)}
+  .youneed{display:inline-block;background:#fff;border:2.5px solid var(--ink);border-radius:10px;box-shadow:4px 4px 0 var(--ink);
+    padding:10px 16px;--tilt:1deg;font-size:13px}
+  .youneed b{display:block;font-size:10.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--red);margin-bottom:3px}
+
+  /* step 2 — live demo + manifest */
+  .kitgrid{display:grid;grid-template-columns:minmax(0,20fr) minmax(0,23fr);gap:28px;align-items:start}
+  .demoframe{position:relative;border:3px solid var(--ink);border-radius:16px;background:#fff;box-shadow:7px 7px 0 var(--ink);
+    padding:10px 10px 26px;--tilt:-1.2deg}
+  .demoframe iframe{display:block;width:100%;height:520px;border:2px solid rgba(26,26,46,.2);border-radius:10px;background:var(--paper)}
+  .demoframe .try{position:absolute;left:50%;bottom:-20px;transform:translateX(-50%);white-space:nowrap;
+    font-size:14px;padding:10px 16px 9px;border-radius:10px}
+  .fourword{font-size:15px;font-weight:800;letter-spacing:.01em;margin-bottom:10px}
+  .fourword .b{color:var(--blue)}.fourword .c{color:var(--red)}.fourword .p{color:var(--green)}
+  .fourword .coach{display:inline-block;background:var(--yellow);border:2.5px solid var(--ink);border-radius:7px;padding:1px 8px 0;box-shadow:2.5px 2.5px 0 var(--ink)}
+  .demo-cap{font-size:13.5px;color:var(--muted);margin:30px 4px 0;max-width:44ch}
+  .manifest{border:3px solid var(--ink);border-radius:16px;background:#fff;box-shadow:7px 7px 0 var(--ink);padding:20px 20px 16px}
+  .manifest h3{font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;margin-bottom:12px}
+  .mrow{display:flex;align-items:center;gap:12px;padding:9px 6px;border-radius:10px;transition:transform .15s,background .15s}
+  .mrow:hover{transform:translateX(3px);background:rgba(246,190,0,.12)}
+  .mrow .mini{flex:0 0 auto}
+  .mrow .count{flex:0 0 auto;font-size:12px;font-weight:800;border:2px solid var(--ink);border-radius:6px;background:#fff;padding:1px 6px}
+  .mrow p{font-size:14px}
+  .mrow p strong{font-weight:700}
+  .mini{width:30px;height:20px;border:2.5px solid var(--ink);border-radius:5px;position:relative}
+  .mini::before,.mini::after{content:'';position:absolute;top:-6px;width:8px;height:5px;border-radius:2.5px 2.5px 0 0;background:inherit;border:2px solid var(--ink);border-bottom:none}
+  .mini::before{left:3px}.mini::after{right:3px}
+  .zeroes{border-top:2.5px dashed rgba(26,26,46,.25);margin-top:12px;padding:12px 6px 2px;
+    font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+  /* step 3 — the quiet payoff */
+  .payoff{text-align:center;max-width:560px}
+  .payoff .isobrick2x4{width:min(240px,70%)}
+  .payoff .capline{font-size:17px;font-weight:700;margin-top:16px}
+  .payoff .emoji{font-size:26px;letter-spacing:6px;margin-top:6px;min-height:34px}
+  .payoff .emoji span{display:inline-block}
+  .payoff .emoji.play span{animation:popIn .5s cubic-bezier(.34,1.7,.5,1) both}
+  .payoff .emoji.play span:nth-child(2){animation-delay:.09s}
+  .payoff .emoji.play span:nth-child(3){animation-delay:.18s}
+  .payoff .emoji.play span:nth-child(4){animation-delay:.27s}
+  @keyframes popIn{0%{transform:translateY(24px) scale(.4);opacity:0}70%{transform:translateY(-8px) scale(1.15)}100%{transform:translateY(0) scale(1);opacity:1}}
+  .honesty{font-size:14.5px;color:var(--muted);margin-top:10px}
+
+  /* step 4 — baseplates + safety notes */
+  .plates{display:flex;flex-direction:column;gap:18px;margin:6px 0 30px}
+  .plate{position:relative;border:3px solid var(--ink);border-radius:12px;background:#fff;box-shadow:5px 5px 0 var(--ink);
+    padding:18px 20px 16px;max-width:640px;transition:transform .15s,box-shadow .15s}
+  .plate:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink)}
+  .plate:nth-child(even){margin-left:34px}
+  .plate .bumps{position:absolute;top:-10px;left:18px;display:flex;gap:9px}
+  .plate .bumps i{width:20px;height:10px;border-radius:5px 5px 0 0;border:2.5px solid var(--ink);border-bottom:none}
+  .plate.red .bumps i{background:var(--red)} .plate.blue .bumps i{background:var(--blue)}
+  .plate.green .bumps i{background:var(--green)} .plate.yellow .bumps i{background:var(--yellow)}
+  .plate h3{font-size:17px;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .plate p{font-size:14px;color:var(--muted)}
+  .plate p strong{color:var(--ink)}
+  .badge{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;border-radius:7px;padding:3px 8px 2px}
+  .badge.own{background:var(--green);color:#fff;border:2px solid var(--ink)}
+  .badge.svc{background:#eee;color:var(--muted);border:2px solid rgba(26,26,46,.3)}
+  .safety{position:relative;border:3px solid var(--ink);border-radius:16px;background:linear-gradient(rgba(246,190,0,.14),rgba(246,190,0,.14)),#fff;
+    box-shadow:7px 7px 0 var(--ink);padding:22px 22px 18px;max-width:640px}
+  .safety h3{font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .safety .tri{flex:0 0 auto}
+  .safety p{font-size:14.5px;margin-bottom:10px}
+  .safety p strong{font-weight:700}
+
+  /* step 5 — terminal code-brick + the empty roster */
+  .codebrick{position:relative;background:var(--ink);border:3px solid var(--ink);border-radius:14px;
+    box-shadow:7px 7px 0 rgba(26,26,46,.25);padding:22px 20px 18px;max-width:640px;margin:16px 0 10px}
+  .codebrick .studrow{position:absolute;top:-11px;left:20px;display:flex;gap:10px}
+  .codebrick .studrow i{width:22px;height:11px;border-radius:5px 5px 0 0;border:2.5px solid var(--ink);border-bottom:none}
+  .codebrick .studrow i:nth-child(1){background:var(--red)}
+  .codebrick .studrow i:nth-child(2){background:var(--yellow)}
+  .codebrick .studrow i:nth-child(3){background:var(--blue)}
+  .codebrick .studrow i:nth-child(4){background:var(--green)}
+  .codebrick pre{overflow-x:auto;font-family:ui-monospace,'Cascadia Code',Menlo,Consolas,monospace;
+    font-size:13.5px;line-height:1.8;color:var(--paper);padding-right:84px}
+  .codebrick .cmt{color:#8f8fa8}
+  .codebrick .copy{position:absolute;top:12px;right:12px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;
+    background:var(--paper);color:var(--ink);border:2.5px solid var(--paper);border-radius:8px;padding:5px 12px 4px;
+    transition:transform .12s}
+  .codebrick .copy:hover{transform:translate(-1px,-1px)}
+  .codebrick .copy:active{transform:translate(1px,1px)}
+  .roster{margin:34px auto 6px;max-width:560px;text-align:center}
+  .roster .capline{font-size:17px;font-weight:700;margin-bottom:16px}
+  .rosterstage{position:relative;width:min(360px,92%);margin:0 auto}
+  .rosterstage .isobrick2x4{width:100%}
+  .studbtn{position:absolute;width:14.5%;aspect-ratio:1;transform:translate(-50%,-50%);
+    background:transparent;border:none;border-radius:50%;cursor:pointer;padding:0}
+  .studbtn:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+  .confetti{position:absolute;width:22px;height:14px;border:2.5px solid var(--ink);border-radius:4px;pointer-events:none;
+    left:50%;top:40%;animation:fling .8s cubic-bezier(.2,.7,.4,1) both}
+  @keyframes fling{
+    0%{transform:translate(-50%,-50%) scale(.4) rotate(0);opacity:0}
+    25%{opacity:1}
+    100%{transform:translate(calc(-50% + var(--fx)),calc(-50% + var(--fy))) scale(1) rotate(var(--fr));opacity:0}
+  }
+  .roster .after{margin-top:18px}
+
+  /* ── back cover ──────────────────────────────────────────────────────── */
+  .backcover{position:relative;z-index:2;background:var(--ink);color:var(--paper);margin-top:60px;padding:8px 0 46px}
+  .backcover .studs{transform:scaleY(-1);margin-top:-14px;margin-bottom:26px}
+  .bc-inner{max-width:1100px;margin:0 auto;padding:26px 20px 0;display:grid;grid-template-columns:3fr 2fr;gap:40px}
+  .backcover h2{font-size:clamp(24px,3.2vw,30px);font-weight:800;margin-bottom:12px}
+  .backcover p{font-size:15px;color:#c9c9d8;max-width:56ch}
+  .backcover p strong{color:var(--paper)}
+  .bc-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+  .bc-links .btn{font-size:14px;padding:11px 16px 9px;background:var(--paper);color:var(--ink);
+    border-color:var(--paper);box-shadow:4px 4px 0 rgba(255,253,247,.35)}
+  .bc-links .btn:hover{box-shadow:6px 6px 0 rgba(255,253,247,.4)}
+  .coming h3{font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--yellow);margin-bottom:14px}
+  .ghost{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+  .ghost svg{flex:0 0 auto;width:64px;height:auto;overflow:visible}
+  .ghost svg polygon,.ghost svg ellipse{fill:none;stroke:#8f8fa8;stroke-width:2;stroke-dasharray:5 4;stroke-linejoin:round}
+  .ghost p{font-size:14px;color:#c9c9d8}
+  .backcover p.apache{max-width:1100px;margin:30px auto 0;padding:0 20px;font-size:13.5px;color:#8f8fa8;text-align:center}
+  .apache a{color:var(--yellow)}
+  .backcover p.gofind{max-width:1100px;margin:34px auto 8px;padding:0 20px;font-size:clamp(34px,6vw,64px);font-weight:800;line-height:1.05;letter-spacing:-.01em;text-align:center;color:var(--paper)}
+
+  footer{position:relative;z-index:2;background:var(--ink);font-size:11.5px;color:#9a9aac;text-align:center;line-height:1.7;padding:26px 20px 34px;border-top:1px solid rgba(255,253,247,.14)}
+  footer a{color:#b9cde4}
+
+  /* ── entrance animations (gated + additive: .anim is set by JS only) ─── */
+  .anim .stud{animation:drop .55s cubic-bezier(.3,1.5,.5,1) both}
+  .anim .stud:nth-child(1){animation-delay:.02s}
+  .anim .stud:nth-child(2){animation-delay:.10s}
+  .anim .stud:nth-child(3){animation-delay:.18s}
+  .anim .stud:nth-child(4){animation-delay:.26s}
+  @keyframes drop{0%{transform:translateY(-46px) scaleY(.6);opacity:0}60%{transform:translateY(6px) scaleY(1.05)}100%{transform:translateY(0) scaleY(1);opacity:1}}
+  .anim h1 span{animation:letterIn .5s cubic-bezier(.34,1.6,.5,1) both}
+  .anim h1 span:nth-child(1){animation-delay:.25s}
+  .anim h1 span:nth-child(2){animation-delay:.35s}
+  .anim h1 span:nth-child(3){animation-delay:.45s}
+  @keyframes letterIn{0%{transform:translateY(30px) rotate(-6deg);opacity:0}70%{transform:translateY(-5px) rotate(2deg)}100%{transform:translateY(0) rotate(0);opacity:1}}
+  /* scroll reveals — hidden ONLY when JS is present (.js on <html>); tilted elements
+     compose their rotation via --tilt so the reveal transform can't flatten them */
+  .reveal,.reveal-fade{transform:rotate(var(--tilt,0deg))}
+  .js .reveal{opacity:0;transform:translateY(26px) rotate(var(--tilt,0deg));transition:opacity .55s ease,transform .55s cubic-bezier(.3,1.3,.5,1)}
+  .js .reveal.in{opacity:1;transform:translateY(0) rotate(var(--tilt,0deg))}
+  .js .reveal-fade{opacity:0;transition:opacity .55s ease}
+  .js .reveal-fade.in{opacity:1}
+
+  /* ── responsive ──────────────────────────────────────────────────────── */
+  @media (max-width:900px){
+    .hero{grid-template-columns:1fr;gap:30px;padding-top:34px}
+    .hero-brick{order:2}
+    .kitgrid{grid-template-columns:1fr}
+    .demoframe{max-width:420px;margin:0 auto 34px;transform:none}
+    .bc-inner{grid-template-columns:1fr;gap:30px}
+  }
+  @media (max-width:640px){
+    .steps{padding:0 16px}
+    .step{padding:26px 0 26px 0}
+    .step::before{display:none}
+    .stepnum{position:static;width:48px;height:48px;font-size:24px;margin-bottom:14px}
+    .plate:nth-child(even){margin-left:0}
+    .cta-row .btn{flex:1 1 100%}
+    .note{--tilt:-1deg}
+    .demoframe iframe{height:480px;pointer-events:none} /* avoid the scroll trap; the button opens it */
+    .desktop-only{display:none}
+  }
+
+  /* ── accessibility: honor reduced motion (kill every loop + entrance) ── */
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .float{animation:none}
+    .anim .stud,.anim h1 span{animation:none}
+    .isobrick2x4 .st.pop,.isobrick2x4.hop{animation:none}
+    .isobrick2x4 .st.on{transform:translateY(-5px)}
+    .payoff .emoji.play span{animation:none}
+    .confetti{display:none}
+    .js .reveal,.js .reveal-fade{opacity:1;transform:rotate(var(--tilt,0deg));transition:none}
+    .btn,.chip.gh,.plate,.mrow{transition:none}
+  }
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- ambient bricks in the desktop margins (decorative) -->
+<div class="ambient" aria-hidden="true">
+  <div class="float f1"><span class="piece p2 red"    style="transform:rotate(-12deg)"><i class="s"></i><i class="s"></i><i class="s"></i><i class="s"></i></span></div>
+  <div class="float f2"><span class="piece p3 blue"   style="transform:rotate(8deg)"><i class="s"></i><i class="s"></i><i class="s"></i><i class="s"></i><i class="s"></i><i class="s"></i></span></div>
+  <div class="float f3"><span class="piece p2 yellow" style="transform:rotate(-8deg)"><i class="s"></i><i class="s"></i><i class="s"></i><i class="s"></i></span></div>
+  <div class="float f4"><span class="piece p3 green"  style="transform:rotate(11deg)"><i class="s"></i><i class="s"></i><i class="s"></i><i class="s"></i><i class="s"></i><i class="s"></i></span></div>
+</div>
+
+<header class="topbar">
+  <div class="brand">🧱 FIRST LEGO League Team Kit</div>
+  <div class="spacer"></div>
+  <span class="chip">Apache-2.0</span>
+  <a class="chip gh" href="https://github.com/delorenj/first-lego-league-team-kit">⭐ GitHub</a>
+</header>
+
+<div class="studs" id="topstuds" aria-hidden="true">
+  <div class="stud bg-red"></div><div class="stud bg-yellow"></div>
+  <div class="stud bg-blue"></div><div class="stud bg-green"></div>
+</div>
+
+<main id="main">
+
+  <section class="hero" id="hero">
+    <div class="hero-copy">
+      <p class="kicker">Free &amp; open source · Made by a volunteer dad</p>
+      <h1><span class="w1">ONE DAD.</span> <span class="w2">EIGHT SPOTS.</span> <span class="w3">YOUR TOWN NEXT.</span></h1>
+      <p class="sub">I'm a kindergarten dad who needs eight kids for my town's first
+        <strong>FIRST&reg; LEGO&reg; League team</strong> — so I built the whole recruiting kit:
+        a signup site, a print flyer, the outreach emails, even a backend that keeps signups on
+        <strong>your own machine</strong>. It's live and recruiting Clinton kids right now — and
+        it's yours too, free. One config file, one afternoon, no monthly fee.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="https://github.com/delorenj/first-lego-league-team-kit">Get the kit 🧱 &rarr;</a>
+        <a class="btn ghost" href="./demo/">See the live demo</a>
+      </div>
+      <p class="also">or read the <a href="https://github.com/delorenj/first-lego-league-team-kit/blob/main/docs/INSTALL.md">quick install guide</a></p>
+      <p class="statstrip">Set №001 · Pieces: 1 config file · Build time: one afternoon · Ages: 5&ndash;14 (the kids) / any (the coach)</p>
+    </div>
+    <div class="hero-brick">
+      <svg class="isobrick2x4" id="heroBrick" viewBox="-2 -10 180 116" aria-hidden="true">
+        <polygon class="fc fL" points="44,22 132,66 132,100 44,56"/>
+        <polygon class="fc fR" points="132,66 176,44 176,78 132,100"/>
+        <polygon class="fc fT" points="88,0 176,44 132,66 44,22"/>
+        <g>
+          <ellipse class="st on c0" cx="88"  cy="11" rx="9" ry="5.2"/>
+          <ellipse class="st on c1" cx="66"  cy="22" rx="9" ry="5.2"/>
+          <ellipse class="st on c2" cx="110" cy="22" rx="9" ry="5.2"/>
+          <ellipse class="st on c3" cx="88"  cy="33" rx="9" ry="5.2"/>
+          <ellipse class="st on c0" cx="132" cy="33" rx="9" ry="5.2"/>
+          <ellipse class="st on c1" cx="110" cy="44" rx="9" ry="5.2"/>
+          <ellipse class="st on c2" cx="154" cy="44" rx="9" ry="5.2"/>
+          <ellipse class="st on c3" cx="132" cy="55" rx="9" ry="5.2"/>
+        </g>
+      </svg>
+      <span class="counter" id="heroCounter">8 spots = 1 team</span>
+    </div>
+  </section>
+
+  <ol class="steps" role="list">
+
+    <li class="step">
+      <div class="stepnum" aria-hidden="true">1</div>
+      <h2><span class="vh">Step 1. </span>One dad. Zero kids.</h2>
+      <div class="note reveal">
+        <span class="pin" aria-hidden="true"></span>
+        <p>Summer 2026. Clinton, New Jersey. Our school has never had a
+          <strong>FIRST&reg; LEGO&reg; League</strong> team, my kindergartner wants robots,
+          and I need eight kids by fall — with no idea how to find them. Sound familiar?</p>
+      </div>
+      <div class="youneed reveal">
+        <b>You will need</b>
+        1&times; parent who said &ldquo;fine, I'll do it&rdquo; &nbsp;&middot;&nbsp; 0&times; robotics experience &nbsp;&middot;&nbsp; 0&times; coding experience
+      </div>
+    </li>
+
+    <li class="step">
+      <div class="stepnum" aria-hidden="true">2</div>
+      <h2><span class="vh">Step 2. </span>So I built a kit.</h2>
+      <div class="kitgrid">
+        <div>
+          <p class="fourword"><span class="b">BUILD.</span> <span class="c">CODE.</span> <span class="p">PLAY.</span> <span class="coach">COACH.</span></p>
+          <div class="demoframe reveal">
+            <iframe src="./demo/" title="Live demo of the signup site that ships in the kit" loading="lazy"></iframe>
+            <a class="btn primary try" href="./demo/">Open the live demo &rarr;</a>
+          </div>
+          <p class="demo-cap">This isn't a screenshot — it's the real signup page shipped in the kit,
+            running live in that box.<span class="desktop-only"> Tap a grade brick.</span>
+            The kids' site says Build. Code. Play. — this kit adds the fourth word.</p>
+        </div>
+        <div class="manifest reveal">
+          <h3>What's in the box</h3>
+          <div class="mrow"><span class="mini bg-red" aria-hidden="true"></span><span class="count">1&times;</span><p><strong>mobile signup site</strong> — the one in the demo box</p></div>
+          <div class="mrow"><span class="mini bg-yellow" aria-hidden="true"></span><span class="count">1&times;</span><p><strong>print flyer</strong> with a QR code to your page</p></div>
+          <div class="mrow"><span class="mini bg-blue" aria-hidden="true"></span><span class="count">2&times;</span><p><strong>outreach emails</strong> — school pitch + co-coach invite</p></div>
+          <div class="mrow"><span class="mini bg-green" aria-hidden="true"></span><span class="count">3&times;</span><p><strong>social posts</strong> — long, short, and text-chain</p></div>
+          <div class="mrow"><span class="mini bg-red" aria-hidden="true"></span><span class="count">1&times;</span><p><strong>self-host backend</strong> — SQLite, private roster, your data</p></div>
+          <div class="mrow"><span class="mini bg-blue" aria-hidden="true"></span><span class="count">1&times;</span><p><strong>installer</strong> — <code>./install.sh</code>, plain questions only</p></div>
+          <p class="zeroes">0&times; monthly fees &nbsp;&middot;&nbsp; 0&times; accounts on someone else's service &nbsp;&middot;&nbsp; 0&times; lock-in</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="step">
+      <div class="stepnum" aria-hidden="true">3</div>
+      <h2><span class="vh">Step 3. </span>Eight pistons. Eight kids.</h2>
+      <div class="payoff reveal">
+        <svg class="isobrick2x4" viewBox="-2 -10 180 116" aria-hidden="true">
+          <polygon class="fc fL" points="44,22 132,66 132,100 44,56"/>
+          <polygon class="fc fR" points="132,66 176,44 176,78 132,100"/>
+          <polygon class="fc fT" points="88,0 176,44 132,66 44,22"/>
+          <g>
+            <ellipse class="st on c0" cx="88"  cy="11" rx="9" ry="5.2"/>
+            <ellipse class="st on c1" cx="66"  cy="22" rx="9" ry="5.2"/>
+            <ellipse class="st on c2" cx="110" cy="22" rx="9" ry="5.2"/>
+            <ellipse class="st on c3" cx="88"  cy="33" rx="9" ry="5.2"/>
+            <ellipse class="st on c0" cx="132" cy="33" rx="9" ry="5.2"/>
+            <ellipse class="st on c1" cx="110" cy="44" rx="9" ry="5.2"/>
+            <ellipse class="st on c2" cx="154" cy="44" rx="9" ry="5.2"/>
+            <ellipse class="st on c3" cx="132" cy="55" rx="9" ry="5.2"/>
+          </g>
+        </svg>
+        <p class="capline">Eight pistons = one whole team. Clinton is town №001 — recruiting for fall right now.</p>
+        <div class="emoji" id="popEmoji" aria-hidden="true"><span>🔴</span><span>🟡</span><span>🔵</span><span>🟢</span></div>
+        <p class="honesty">This kit is brand-new — one town so far. Yours could be the second, and I'd love that.</p>
+      </div>
+    </li>
+
+    <li class="step">
+      <div class="stepnum" aria-hidden="true">4</div>
+      <h2><span class="vh">Step 4. </span>Now it's yours. Pick your baseplate.</h2>
+      <p class="lead">Edit <strong>one file</strong> with your town's details, pick how to host it, done.
+        The installer walks every path — you mostly press Enter.</p>
+      <div class="plates">
+        <div class="plate red reveal-fade">
+          <span class="bumps" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+          <h3>Email me the signups <span class="badge svc">via a form service</span></h3>
+          <p>Formspree or a Google Sheet. No server, free, live in an hour.</p>
+        </div>
+        <div class="plate blue reveal-fade">
+          <span class="bumps" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+          <h3>Docker Compose + built-in backend <span class="badge own">Your data, your box</span></h3>
+          <p>A Pi, a NAS, an old laptop. <strong>A SQLite file on your box</strong>, a private roster page,
+            no third party reading your neighbors' emails.</p>
+        </div>
+        <div class="plate green reveal-fade">
+          <span class="bumps" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+          <h3>DigitalOcean <span class="badge own">Your data, your droplet</span></h3>
+          <p>A one-click droplet that owns its data — or free App Platform static hosting. The installer drives <code>doctl</code>.</p>
+        </div>
+        <div class="plate yellow reveal-fade">
+          <span class="bumps" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+          <h3>Your own reverse proxy <span class="badge own">Your data, your box</span></h3>
+          <p>Already run Traefik and a tunnel? The kit slots right in, fully parameterized.</p>
+        </div>
+      </div>
+      <div class="safety reveal">
+        <h3><svg class="tri" width="26" height="24" viewBox="0 0 26 24" aria-hidden="true">
+            <polygon points="13,2 25,22 1,22" fill="var(--yellow)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/>
+            <circle cx="13" cy="16" r="3" fill="var(--ink)"/></svg>
+          Read before building <span style="font-weight:600;text-transform:none;letter-spacing:0">(please keep these)</span></h3>
+        <p><strong>Privacy.</strong> The form asks for a child's first name and grade, plus a parent's
+          contact — that's it. No last names, no birthdays, no photos. The minimum to reach a family.
+          Delete it all at season's end. That's the whole privacy policy.</p>
+        <p><strong>Trademarks.</strong> FIRST&reg; and LEGO&reg; aren't ours. Every page ships the
+          &ldquo;not sponsored by or affiliated&rdquo; disclaimer and the &reg; marks. Please leave them in.</p>
+      </div>
+    </li>
+
+    <li class="step">
+      <div class="stepnum" aria-hidden="true">5</div>
+      <h2><span class="vh">Step 5. </span>Your turn.</h2>
+      <div class="codebrick reveal">
+        <span class="studrow" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <button class="copy" id="copyBtn" type="button">Copy</button>
+        <pre id="cmds">git clone https://github.com/delorenj/first-lego-league-team-kit.git
+cd first-lego-league-team-kit
+./install.sh   <span class="cmt"># a few plain questions &rarr; your site is live</span></pre>
+      </div>
+      <p class="lead">Not a techie? <strong>That's the whole point.</strong> The installer asks about
+        <em>you</em> — your town, your school, your email — and you press Enter a lot. Or ask any AI
+        assistant to run the <code>deploy-team-site</code> skill and it'll do it with you.</p>
+
+      <div class="roster">
+        <p class="capline" id="rosterCap">Eight pistons. Eight kids. Your roster starts empty.</p>
+        <div class="rosterstage" id="rosterStage">
+          <svg class="isobrick2x4" id="rosterBrick" viewBox="-2 -10 180 116" aria-hidden="true">
+            <polygon class="fc fL" points="44,22 132,66 132,100 44,56"/>
+            <polygon class="fc fR" points="132,66 176,44 176,78 132,100"/>
+            <polygon class="fc fT" points="88,0 176,44 132,66 44,22"/>
+            <g id="rosterStuds">
+              <ellipse class="st" cx="88"  cy="11" rx="9" ry="5.2"/>
+              <ellipse class="st" cx="66"  cy="22" rx="9" ry="5.2"/>
+              <ellipse class="st" cx="110" cy="22" rx="9" ry="5.2"/>
+              <ellipse class="st" cx="88"  cy="33" rx="9" ry="5.2"/>
+              <ellipse class="st" cx="132" cy="33" rx="9" ry="5.2"/>
+              <ellipse class="st" cx="110" cy="44" rx="9" ry="5.2"/>
+              <ellipse class="st" cx="154" cy="44" rx="9" ry="5.2"/>
+              <ellipse class="st" cx="132" cy="55" rx="9" ry="5.2"/>
+            </g>
+          </svg>
+          <!-- transparent hit-area buttons over each stud; DOM order = fill order -->
+        </div>
+        <p class="counter" role="status" style="display:inline-block;margin-top:14px" id="rosterCounter">0 of 8 spots filled</p>
+        <div class="after">
+          <a class="btn primary" id="finalCta" href="https://github.com/delorenj/first-lego-league-team-kit">Get the kit on GitHub &rarr;</a>
+        </div>
+      </div>
+    </li>
+
+  </ol>
+</main>
+
+<section class="backcover" aria-label="Contribute and license">
+  <div class="studs" aria-hidden="true">
+    <div class="stud bg-red"></div><div class="stud bg-yellow"></div>
+    <div class="stud bg-blue"></div><div class="stud bg-green"></div>
+  </div>
+  <div class="bc-inner">
+    <div>
+      <h2>Help build the next&nbsp;version&nbsp;💛</h2>
+      <p>This is a charity effort. Contributions of <strong>every kind</strong> are welcome — better words,
+        a nicer flyer, one more deploy path, or just telling me what confused you.
+        <strong>You don't have to write code.</strong></p>
+      <div class="bc-links">
+        <a class="btn" href="https://github.com/delorenj/first-lego-league-team-kit/blob/main/CONTRIBUTING.md">Read CONTRIBUTING.md</a>
+        <a class="btn" href="https://github.com/delorenj/first-lego-league-team-kit/issues">Open an issue</a>
+        <a class="btn" href="https://github.com/delorenj/first-lego-league-team-kit">⭐ Star the repo</a>
+      </div>
+      <p style="font-size:13px;margin-top:10px;color:#8f8fa8">Starring genuinely helps parents find it.</p>
+    </div>
+    <div class="coming">
+      <h3>Coming pieces</h3>
+      <div class="ghost">
+        <svg viewBox="-2 -10 100 78" aria-hidden="true">
+          <polygon points="24,12 72,36 48,48 0,24"/>
+          <polygon points="0,24 48,48 48,66 0,42"/>
+          <polygon points="48,48 72,36 72,54 48,66"/>
+          <ellipse cx="36" cy="18" rx="7" ry="4"/><ellipse cx="54" cy="27" rx="7" ry="4"/>
+        </svg>
+        <p>1&times; Vercel deploy path</p>
+      </div>
+      <div class="ghost">
+        <svg viewBox="-2 -10 100 78" aria-hidden="true">
+          <polygon points="24,12 72,36 48,48 0,24"/>
+          <polygon points="0,24 48,48 48,66 0,42"/>
+          <polygon points="48,48 72,36 72,54 48,66"/>
+          <ellipse cx="36" cy="18" rx="7" ry="4"/><ellipse cx="54" cy="27" rx="7" ry="4"/>
+        </svg>
+        <p>1&times; flyer generator — config &rarr; PDF with QR</p>
+      </div>
+      <p style="font-size:13px;color:#8f8fa8">Want one of these to exist sooner? That's a great first contribution.</p>
+    </div>
+  </div>
+  <p class="apache"><a href="https://github.com/delorenj/first-lego-league-team-kit/blob/main/LICENSE">Apache-2.0</a>
+    — take it, change it, deploy it, share it. Just keep the notice.</p>
+  <p class="gofind">Go find your eight kids. 🧱🤖</p>
+</section>
+
+<footer>
+  Made by a volunteer dad in Clinton, NJ &bull; <a href="https://github.com/delorenj/first-lego-league-team-kit">github.com/delorenj/first-lego-league-team-kit</a><br>
+  FIRST&reg; LEGO&reg; League is a program of <a href="https://firstlegoleague.org" rel="noopener">FIRST</a> and the LEGO Group.<br>
+  LEGO&reg; and FIRST&reg; are trademarks of their respective owners. This kit is a volunteer community
+  project — not sponsored by or affiliated with FIRST or the LEGO Group.
+</footer>
+
+<script>
+(function () {
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ── entrance: studs drop + headline springs (additive; static page is complete without it)
+  if (!reduce) { document.body.classList.add('anim'); }
+
+  // ── hero brick: studs piston up one-by-one, counter ticks, brick hops on the 8th.
+  // Markup ships FILLED (no-JS / reduced-motion see the finished brick); JS rewinds then replays.
+  var heroStuds = document.querySelectorAll('#heroBrick .st');
+  var heroCounter = document.getElementById('heroCounter');
+  if (!reduce && heroStuds.length) {
+    heroStuds.forEach(function (s) { s.classList.remove('on'); });
+    heroCounter.textContent = '0 of 8 spots';
+    heroStuds.forEach(function (s, i) {
+      setTimeout(function () {
+        s.classList.add('on', 'pop');
+        heroCounter.textContent = (i + 1) + ' of 8 spots';
+        if (i === heroStuds.length - 1) {
+          heroCounter.textContent = '8 spots = 1 team';
+          setTimeout(function () { document.getElementById('heroBrick').classList.add('hop'); }, 380);
+        }
+      }, 650 + i * 120);
+    });
+  }
+
+  // ── scroll reveals (additive; without IO or with reduced motion, everything is simply visible)
+  var reveals = document.querySelectorAll('.reveal, .reveal-fade');
+  if (!reduce && 'IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.15 });
+    reveals.forEach(function (el) { io.observe(el); });
+  } else {
+    reveals.forEach(function (el) { el.classList.add('in'); });
+  }
+
+  // step 3: the four brick emojis pop when scrolled into view
+  var pop = document.getElementById('popEmoji');
+  if (pop && !reduce && 'IntersectionObserver' in window) {
+    var io2 = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { pop.classList.add('play'); io2.unobserve(pop); }
+      });
+    }, { threshold: 0.6 });
+    io2.observe(pop);
+  }
+
+  // ── copy button
+  var copyBtn = document.getElementById('copyBtn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function () {
+      var text = 'git clone https://github.com/delorenj/first-lego-league-team-kit.git\ncd first-lego-league-team-kit\n./install.sh';
+      function done() { copyBtn.textContent = 'Copied! 🧱'; setTimeout(function () { copyBtn.textContent = 'Copy'; }, 1800); }
+      function fallback() {
+        var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta);
+        ta.select(); var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta); if (ok) { done(); }
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text).then(done).catch(fallback); }
+      else { fallback(); }
+    });
+  }
+
+  // ── the Empty Roster: 8 stud buttons; each tap fills a stud; 8/8 → hop + confetti + caption swap
+  var stage = document.getElementById('rosterStage');
+  var rosterStuds = document.querySelectorAll('#rosterStuds .st');
+  var cap = document.getElementById('rosterCap');
+  var counter = document.getElementById('rosterCounter');
+  var brick = document.getElementById('rosterBrick');
+  var CAP_DEFAULT = 'Your eight pistons are waiting. Tap them.';
+  var CAP_DONE = 'That’s the whole team. Now do it for real →';
+  if (cap) { cap.textContent = CAP_DEFAULT; } // markup ships a no-JS caption; swap once buttons exist
+  var colors = ['c0', 'c1', 'c2', 'c3'];
+  // stud centers in viewBox units (viewBox: -2 -10 180 116) → percentage positions for the hit buttons
+  var centers = [[88,11],[66,22],[110,22],[88,33],[132,33],[110,44],[154,44],[132,55]];
+  rosterStuds.forEach(function (stud, i) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'studbtn';
+    b.setAttribute('aria-pressed', 'false');
+    b.setAttribute('aria-label', 'Fill roster spot ' + (i + 1) + ' of 8');
+    b.style.left = ((centers[i][0] + 2) / 180 * 100) + '%';
+    b.style.top = ((centers[i][1] + 10) / 116 * 100) + '%';
+    b.addEventListener('click', function () {
+      var on = stud.classList.contains('on');
+      stud.classList.remove('pop');
+      if (on) { stud.classList.remove('on', colors[i % 4]); }
+      else {
+        stud.classList.add('on', colors[i % 4]);
+        if (!reduce) { void stud.getBoundingClientRect(); stud.classList.add('pop'); }
+      }
+      b.setAttribute('aria-pressed', String(!on));
+      var n = document.querySelectorAll('#rosterStuds .st.on').length;
+      counter.textContent = n + ' of 8 spots filled';
+      if (n === 8) {
+        cap.textContent = CAP_DONE;
+        if (!reduce) {
+          brick.classList.remove('hop'); void brick.getBoundingClientRect(); brick.classList.add('hop');
+          var pal = ['var(--red)', 'var(--yellow)', 'var(--blue)', 'var(--green)'];
+          for (var k = 0; k < 6; k++) {
+            var c = document.createElement('i');
+            c.className = 'confetti';
+            c.style.background = pal[k % 4];
+            c.style.setProperty('--fx', (Math.cos(k * 1.05) * 150) + 'px');
+            c.style.setProperty('--fy', (-70 - (k % 3) * 45) + 'px');
+            c.style.setProperty('--fr', ((k % 2 ? 1 : -1) * (140 + k * 40)) + 'deg');
+            c.style.animationDelay = (k * 45) + 'ms';
+            stage.appendChild(c);
+            setTimeout(function (el) { return function () { el.remove(); }; }(c), 1100 + k * 45);
+          }
+        }
+      } else if (cap.textContent !== CAP_DEFAULT) { cap.textContent = CAP_DEFAULT; }
+    });
+    stage.appendChild(b);
+  });
+})();
+</script>
+</body>
+</html>

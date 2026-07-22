@@ -30,6 +30,15 @@ task = "link-agentfiles"
 description = "Symlink all agent files to AGENTS.md"
 run = "'{{config_root}}/.mise/scripts/link-agentfiles.sh'"
 
+[tasks."site:build"]
+description = "Assemble the project homepage + demo exactly like the Pages deploy (into $TMPDIR/legofirst-site)"
+run = "'{{config_root}}/.mise/scripts/site-preview.sh' build"
+
+[tasks."site:preview"]
+description = "Assemble and serve the homepage + live demo at http://localhost:8419"
+raw = true
+run = "'{{config_root}}/.mise/scripts/site-preview.sh'"
+
 # >>> mise-versioning >>>  (managed block — do not edit by hand; re-run init to update)
 [tasks."version"]
 description = "Print the current version (vX.Y.Z)"

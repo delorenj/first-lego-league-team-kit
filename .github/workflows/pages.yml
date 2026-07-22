@@ -1,0 +1,45 @@
+# Deploys the project homepage (site/) + the neutral live demo (apps/web/ → /demo/)
+# to GitHub Pages. The demo has no config.js (it's git-ignored), so it renders the
+# kit's neutral defaults — exactly what a fresh clone looks like.
+name: Deploy homepage to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true   # first run creates/enables the Pages site itself
+      - name: Assemble site (homepage + live demo)
+        run: |
+          mkdir -p _site/demo
+          cp -r site/. _site/
+          cp -r apps/web/. _site/demo/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

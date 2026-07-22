@@ -13,9 +13,13 @@ A **turnkey recruiting kit for starting a FIRST® LEGO® League team at your sch
 config-driven signup site + print flyer + outreach emails + roster view that a **non-technical
 parent or coach can deploy for their own town in an afternoon**, guided by an LLM.
 
-It exists because Jarad is starting Clinton, NJ's first FIRST LEGO League K–2 team for the Fall
-2026 (BIOGLOW) season and needed to fill an 8-kid roster. The original one-off — a flyer + signup
-SPA wired to a personal n8n webhook — lives in `REMOTE_SESSION_CONTEXT/` (reference only, do not
+It exists because Jarad is starting Clinton, NJ's first FIRST LEGO League team for the Fall 2026
+(BIOGLOW) season and needed to fill an 8-kid roster. Clinton runs **FIRST LEGO League Explore —
+grades 2–4 (ages 6–10), Founders Edition (LEGO SPIKE)**. (Note the 2026–27 restructure: "Discover" is
+retired; the divisions are Explore grades 2–4 and Challenge grades 4–8 under Founders Edition, plus a
+new Future Edition with K–2 and 3–8 tracks. The kit is **division-agnostic** — grade band, ages, and
+grade buttons are config fields; K–2 is just the shipped example.) The original one-off — a flyer +
+signup SPA wired to a personal n8n webhook — lives in `REMOTE_SESSION_CONTEXT/` (reference only, do not
 ship). This repo **productizes** that into something anyone can redeploy.
 
 **Two missions, in priority order:**
@@ -34,14 +38,15 @@ secret), it's wrong — parameterize it instead.
 | Neo-brutalist signup SPA | ✅ productized, config-driven | `apps/web/` |
 | Team config (the one file a coach edits) | ✅ real | `apps/web/config.js` |
 | Clinton signup site — Jarad's live instance (mission 1) | ✅ **LIVE** at `lego.delo.sh` (personal homelab — see §6, dev/example-only) | `apps/web/` + git-ignored `config.js` |
-| **Turnkey installer** (`install.sh`) — writes config + deploys; email & Compose paths full, DO & Traefik scaffolded | ✅ real | `install.sh` + `docs/INSTALL.md` |
+| **Turnkey installer** (`install.sh`) — email & Compose full; **DO Droplet _and_ App Platform via `doctl`**; Traefik one-click on-host; **own-your-data backend** offered on box paths | ✅ real | `install.sh` + `docs/INSTALL.md` |
 | Docker Compose deploy (Caddy + auto-HTTPS) | ✅ runnable today | `deploy/compose/` |
 | Traefik reverse-proxy deploy (parameterized, BYO-infra) | ✅ template + runbook | `deploy/traefik/` |
 | Deploy skill (triage + runbooks) | ✅ real, now fronts `install.sh` | `.claude/skills/deploy-team-site/` |
 | Outreach email templates | ✅ drafts | `recruiting/emails/` |
 | Print flyer (PDF) | ✅ static asset | `recruiting/flyer/` |
 | Original prototype (do not ship) | 📦 archived | `REMOTE_SESSION_CONTEXT/` |
-| Self-host signup API (SQLite + notify + roster) | 🗺️ roadmap | `services/api/` (stub) |
+| **Project homepage** (GitHub Pages: marketing page + live `/demo/`) | ✅ real — "Eight Pistons" instruction-booklet design | `site/` + `.github/workflows/pages.yml` |
+| Self-host signup API (SQLite + notify + roster) | ✅ **real** — zero-dep Python stdlib; own-your-data stack; wired into Compose + DO Droplet | `services/api/` |
 | Vercel serverless variant | 🗺️ roadmap | `deploy/vercel/` (stub) |
 | Flyer generator (config → PDF w/ QR) | 🗺️ roadmap | `recruiting/flyer/` |
 | Roster / admin view | 🗺️ roadmap | — |
@@ -68,7 +73,7 @@ parentName, parentEmail, parentPhone, childName, childGrade, notes, source
 Any destination that accepts that POST is a valid adapter. Three shipped tiers, easiest → most control:
 
 1. **Form service** (zero backend) — Formspree / Getform / a Google Apps Script Web App. Emails the coach or appends to a Sheet. For the least technical user.
-2. **Self-hosted API** (owns its data) — the `services/api` container: writes SQLite, notifies the coach, serves an authed roster. Reference path, pairs with Compose. *(roadmap)*
+2. **Self-hosted API** (owns its data) — the `services/api` container: writes SQLite, optionally emails the coach, serves an authed neo-brutalist roster (HTML/CSV/JSON) with a delete button. **✅ real** — zero third-party deps (Python stdlib), same-origin behind Caddy (`/api/signup`), self-contained stack at `services/api/`. Offered by the installer on the Compose + DO-Droplet paths.
 3. **Any webhook** — n8n, Zapier, Make, etc. (Jarad's current n8n is just this tier.)
 
 **Do not break this contract.** New front-end fields → add to the payload *and* document them for
@@ -78,13 +83,24 @@ every adapter. The whole "swap deploy paths without touching the app" property d
 Everything team-specific comes from `window.TEAM_CONFIG` (`apps/web/config.js`). Generic FIRST LEGO
 League copy stays hardcoded (it's identical for every team). A non-tech coach should never edit HTML.
 Adding a knob = add a field to `config.js` + `config.example.js` + read it in `index.html` with a safe fallback.
+**Division framing is config, not hardcoded:** `gradeBand`, `ageRange`, `audience`, `programName`,
+`programKit`, `grades` (the grade buttons — **any number**, generated at runtime and wrapping), and
+`spotsLine` (the line above the form) drive the Who/What/hero copy and the signup form. So one config
+swaps the site between one Explore team (grades 2–4), a K–2 team, or a wide **demand-discovery** net
+(e.g. `grades: ["K".."5th"]` + a "we're forming teams by grade" `spotsLine`) that measures interest
+across grades before you commit to a division. Defaults describe the K–2 example.
 
 ### Recruiting kit (the full funnel)
 Awareness → signup → confirmation → roster:
 - **Flyer** (`recruiting/flyer/`) — print/QR, drives scans to the site.
-- **Emails** (`recruiting/emails/`) — school/HSA pitch + co-coach ask, to get the flyer in front of families.
+- **Emails** (`recruiting/emails/`) — school/HSA(-or-PTO) pitch + co-coach ask, to get the flyer in front of families.
+- **Social** (`recruiting/social/`) — Facebook/Nextdoor/text-chain post copy (3 lengths) to reach local families online.
 - **Site** (`apps/web/`) — the 30-second mobile signup.
-- **Roster/admin** *(roadmap)* — coach sees who signed up.
+- **Roster/admin** — coach sees who signed up (`services/api` `/api/roster`, own-your-data path; hosted-form tiers see it in their dashboard).
+
+> **Personal-fill convention:** the shipped files under `recruiting/**` are neutral templates with
+> `{{placeholders}}`. A coach's real filled copies use a `*.filled.md` suffix and are **git-ignored**
+> (like `config.js`) so no personal name/email/URL ever ships. Never bake real details into a template.
 
 ---
 
@@ -92,9 +108,13 @@ Awareness → signup → confirmation → roster:
 
 ```
 apps/web/              signup site — config-driven static SPA (index.html + config.js)
-services/api/          self-host backend (SQLite + notify + roster)          [roadmap stub]
+site/                  the KIT's own homepage (GitHub Pages; /demo/ = neutral apps/web) — see site/README.md
+.github/workflows/     pages.yml — assembles site/ + apps/web → GitHub Pages
+services/api/          self-host backend (SQLite + notify + roster) — ✅ real (Python stdlib)
 recruiting/flyer/      print flyer PDF (+ generator)                          [generator = roadmap]
-recruiting/emails/     outreach templates (school/HSA pitch, co-coach ask)
+recruiting/emails/     outreach email templates (school/PTO pitch, co-coach ask)
+recruiting/social/     social post copy (Facebook/Nextdoor/text) — 3 lengths
+                       (coaches' real *.filled.md copies are git-ignored, per §3)
 deploy/compose/        docker-compose + Caddyfile + .env.example — runnable today
 deploy/vercel/         serverless variant                                     [roadmap stub]
 .claude/agents/        master-builder (the design+dev orchestrator)
@@ -168,19 +188,32 @@ hosting menu → run the chosen path → verify → next steps. Supports `--help
 mode (testable + power-user), `curl | bash` with clone-offer, and is idempotent (backs up an existing
 config). Paths: **email/form-service** (Formspree or Google Apps Script — sets `optimisticSubmit`
 correctly; then static-host guidance) and **Docker Compose** (writes `deploy/compose/.env`, `docker
-compose up -d`) are **full end-to-end**; **DigitalOcean** and **BYO Traefik + tunnel** (parameterized —
-never `delo.sh`; `deploy/traefik/`) are **scaffolded** — config written/validated, then a manual runbook,
-with a clean extension seam (add a path = one `deploy_<name>()` + one line in `run_path`). It generalizes
-the LLM-guided `deploy-team-site` skill into a no-LLM tool (the skill now fronts it) and promotes the
-personal Traefik pattern into a shippable, parameterized option (§8). *Remaining installer work:* wire
-full auto-deploy for DO (`doctl`) and finish the Vercel path.
-**Then (v0.2):** `services/api` (SQLite + coach email notification + `/api/roster`) as the reference own-your-data adapter; roster/admin view (authed); flyer generator (config → PDF w/ QR); strip the Clinton example into `presets/` so first run is neutral.
-**Distribution (v1):** ✅ public GitHub repo + Apache-2.0 license + warm `README`/`CONTRIBUTING`/`CODE_OF_CONDUCT` done. Remaining: harden the quickstart, cut a tagged release, and make the installer cover every live path.
+compose up -d`) are **full end-to-end**. **DigitalOcean** is now a **one-click Droplet**: when `doctl`
+is installed + authenticated the installer provisions a cheap Droplet whose **cloud-init** installs
+Docker, clones the kit, injects the coach's `config.js`, and runs the same Caddy/Compose stack (so the
+droplet owns its data + gets real HTTPS), attaches the account's SSH keys, shows the size price, and —
+if the domain is DO-managed — creates the DNS `A` record; billable, so it always confirms first, and
+falls back to the manual runbook when `doctl` is absent. **BYO Traefik + tunnel** (parameterized — never
+`delo.sh`; `deploy/traefik/`) writes/validates the template and, **when run on the Traefik host** (the
+external proxy network exists locally), offers a one-click `docker compose up`; from elsewhere it stays
+a safe runbook. Clean extension seam intact (add a path = one `deploy_<name>()` + one line in
+`run_path`). It generalizes the LLM-guided `deploy-team-site` skill into a no-LLM tool (the skill now
+fronts it) and promotes the personal Traefik pattern into a shippable, parameterized option (§8).
+The DigitalOcean path now offers **both** styles via `doctl`: a **Droplet** (billable server, owns its
+data, can run the backend) and **App Platform** (`doctl apps create --spec` from the coach's GitHub repo,
+free static hosting — needs a one-time GitHub↔DO OAuth it can't script, so it writes the spec + guides
+when unconnected). *Remaining installer work:* the Vercel path.
+**Then (v0.2):** ✅ **`services/api` done** — zero-dep Python-stdlib own-your-data adapter (SQLite +
+optional coach email + authed HTML/CSV/JSON roster with delete), self-contained stack at `services/api/`,
+offered by the installer on Compose + DO-Droplet. Still open: flyer generator (config → PDF w/ QR); strip
+the Clinton example into `presets/` so first run is neutral.
+**Distribution (v1):** ✅ public GitHub repo + Apache-2.0 license + warm `README`/`CONTRIBUTING`/`CODE_OF_CONDUCT` done. ✅ **Project homepage** (`site/`, GitHub Pages): the "Eight Pistons" instruction-booklet page — hero 2×4 roster brick, live demo iframe, parts manifest, baseplate deploy paths, safety notes, interactive Empty Roster, OG share card — for spreading the word (social/Reddit/LinkedIn/FIRST channels). Remaining: harden the quickstart, cut a tagged release, and make the installer cover every live path.
 
-**Recommended immediate step:** the turnkey installer (`install.sh`) is now built with two full paths
-(email, Compose) and two scaffolded (DO, Traefik). Next highest-leverage work: (a) `services/api` as
-the own-your-data adapter so the Compose path can offer a built-in backend, and (b) full DO auto-deploy
-via `doctl`. Drive both through `master-builder`.
+**Recommended immediate step:** installer covers email, Compose (± built-in backend), DigitalOcean
+(Droplet + App Platform), and Traefik. `services/api` is the real own-your-data adapter. Next
+highest-leverage work: (a) the **Vercel** path (the last stubbed deploy target), (b) the **flyer
+generator** (config → PDF w/ QR) so the recruiting funnel is fully config-driven, and (c) a tagged
+release + quickstart hardening. Drive through `master-builder`.
 
 ---
 
