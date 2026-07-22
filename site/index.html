@@ -58,12 +58,12 @@
 
   /* ambient LEGO bricks in the desktop margins (decorative) */
   .ambient{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden;display:none}
-  @media (min-width:1180px){ .ambient{display:block} }
+  @media (min-width:1320px){ .ambient{display:block} } /* only when the margins are wide enough that bricks can never touch the 1100px content column */
   .float{position:absolute;opacity:.9;animation:bob 8s ease-in-out infinite}
-  .float.f1{left:3.5%;top:20%}
-  .float.f2{left:5%;top:66%;animation-duration:9.5s;animation-delay:-2s}
-  .float.f3{right:4%;top:58%;animation-duration:8.6s;animation-delay:-1s}
-  .float.f4{right:6%;top:16%;animation-duration:10s;animation-delay:-3s}
+  .float.f1{left:2%;top:20%}
+  .float.f2{left:2.5%;top:66%;animation-duration:9.5s;animation-delay:-2s}
+  .float.f3{right:2%;top:58%;animation-duration:8.6s;animation-delay:-1s}
+  .float.f4{right:2.5%;top:16%;animation-duration:10s;animation-delay:-3s}
   @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
   .piece{position:relative;display:grid;gap:6px;padding:8px;grid-auto-rows:17px;
     border:3px solid var(--ink);border-radius:8px;box-shadow:6px 6px 0 var(--ink)}
