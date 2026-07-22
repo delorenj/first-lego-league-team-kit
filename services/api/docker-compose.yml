@@ -1,0 +1,50 @@
+# LEGO League Team Kit — own-your-data stack (site + signup backend, one command).
+#
+#   cd services/api
+#   cp .env.example .env         # set SITE_DOMAIN + roster password (+ optional email)
+#   docker compose up -d         # Caddy (auto-HTTPS) + the SQLite signup API
+#
+# Signups land in the api_data volume (SQLite) on THIS box — no third-party form service.
+# Set the site's config.js signupEndpoint to "/api/signup". Private roster: https://SITE_DOMAIN/api/roster
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: lego-league-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:-localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../../apps/web:/srv:ro        # the site (index.html + your config.js)
+      - caddy_data:/data              # TLS certs — persist so you don't re-issue on restart
+      - caddy_config:/config
+    depends_on:
+      - api
+
+  api:
+    build: .
+    container_name: lego-league-api
+    restart: unless-stopped
+    environment:
+      DB_PATH: /data/signups.db
+      # Roster view (https://SITE_DOMAIN/api/roster). Set BOTH to enable it.
+      ROSTER_USER: ${ROSTER_USER:-}
+      ROSTER_PASS: ${ROSTER_PASS:-}
+      # Optional email notifications to the coach on each signup.
+      COACH_EMAIL: ${COACH_EMAIL:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      SMTP_TLS: ${SMTP_TLS:-1}
+    volumes:
+      - api_data:/data                # your signups (SQLite) — back this up
+
+volumes:
+  caddy_data:
+  caddy_config:
+  api_data:

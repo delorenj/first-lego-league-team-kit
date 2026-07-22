@@ -28,6 +28,23 @@ window.TEAM_CONFIG = {
   costPerChild: "$125",               // per-child cost, your currency string
   schoolName:   "your school",        // full school name (footer/disclaimer)
 
+  // ── Which FIRST LEGO League division? (drives the grade/age copy + the grade buttons) ─────────
+  // For the 2026–27 BIOGLOW season the divisions are: Explore (Grades 2–4 / ages 6–10, LEGO SPIKE),
+  // Challenge (Grades 4–8), and the Future Edition K–2 (ages 5–7) & 3–8 tracks. Set these to match —
+  // OR keep it wide to gauge interest first, then form the right team(s) from who signs up.
+  gradeBand:    "Grades K–2",         // the "Who" line + share text
+  ageRange:     "ages 5–7",           // shown next to the grade band
+  audience:     "kindergartners",     // hero: "…League team for {audience}"
+  programName:  "FIRST LEGO League K–2",   // the "What" chip, bolded
+  programKit:   "LEGO® Education kits",     // the kit the program uses
+  // The signup form's grade buttons — list ANY number (they wrap). A single grade to lock a team,
+  // or a wide range (e.g. ["K","1st","2nd","3rd","4th","5th"]) to measure demand before you commit.
+  grades:       ["K", "1st", "2nd"],
+
+  // The line above the form. Leave unset to use the default "Only {spots} spots… first come, first built"
+  // (good for selling one team). Override for a demand-gauging, all-grades-welcome tone, e.g.:
+  //   spotsLine: "Spots are limited — sign up to save your child's place. We're forming teams by grade this fall.",
+
   // Optional: override the four LEGO brick colors. Delete this line to keep the classic palette.
   // colors: { red: "#D01012", yellow: "#F6BE00", blue: "#0057A6", green: "#00873E" },
 };

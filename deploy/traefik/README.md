@@ -10,7 +10,9 @@ Traefik labels.
 > ships anyone's personal domain or tunnel as a default (see `AGENTS.md` §8).
 
 `./install.sh` → **"Your own reverse proxy"** writes the `.env` for you and validates the template.
-The steps below are the same thing by hand.
+**If you run the installer *on your Traefik host*** (it detects this when your external proxy network
+already exists there), it offers to `docker compose up -d` for you — one click. Otherwise it hands you
+the steps below to run on the host yourself.
 
 ## Prerequisites
 - Traefik already running, attached to an **external** Docker network (commonly named `proxy`).
@@ -54,7 +56,7 @@ own webhook, or the future `services/api`). Tell parents where the data lives an
 season's end.
 
 ## Notes
-- **Auto-deploy status:** the installer *generates and validates* this template but does **not** run
-  `docker compose up` for you here — it can't safely touch your live Traefik. Run step 2 yourself on
-  the Traefik host.
+- **Auto-deploy status:** the installer generates and validates this template, and — **only when it's
+  running on your Traefik host** (i.e. your external proxy network exists locally) — offers to bring it
+  up for you. From any *other* machine it won't touch your live Traefik; run step 2 yourself on the host.
 - **Never commit `.env`** with a real domain you don't want public — it's git-ignored for that reason.

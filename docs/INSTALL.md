@@ -32,11 +32,20 @@ No Node, no Python, no `npm install`, no build step.
 | --- | --- | --- | --- | --- |
 | 1 | **Email me the signups** (Formspree / Google Apps Script) | with Google | nothing (a free static host) | ✅ full |
 | 2 | **Self-host with Docker Compose** (Caddy auto-HTTPS) | ✅ your box | Docker + a domain | ✅ full |
-| 3 | **DigitalOcean** (App Platform or Droplet) | cloud / your droplet | a DO login | 📋 guided runbook |
-| 4 | **Your own Traefik proxy + tunnel** (parameterized) | ✅ your box | existing Traefik | 📋 guided runbook + template |
+| 3 | **DigitalOcean** — Droplet *or* App Platform | ✅ droplet / cloud | `doctl` (installed + `doctl auth init`) | ✅ one-click |
+| 4 | **Your own Traefik proxy + tunnel** (parameterized) | ✅ your box | existing Traefik | ✅ one-click on-host |
 
-Choices 1 and 2 finish end-to-end inside the installer. Choices 3 and 4 write your config, generate
-what they can, validate it, and hand you a short manual runbook (full auto-deploy is on the roadmap).
+Choices 1 and 2 finish end-to-end inside the installer. **Choice 3** offers two DigitalOcean styles: a
+**Droplet** it provisions with `doctl` (installs Docker + runs the stack via cloud-init, can create your
+DNS record), or **App Platform** free static hosting it creates from your GitHub repo (`doctl apps`) —
+falling back to a 15-minute runbook if `doctl` isn't set up. **Choice 4** brings the site up for you when
+you run the installer *on* your Traefik host; from elsewhere it writes + validates the template and gives
+you the one command to run there.
+
+**Own your data (Choices 2 & 3-Droplet):** instead of a third-party form service, you can run the
+**built-in signup backend** — a tiny SQLite service ([`services/api`](../services/api/README.md)) behind
+Caddy. Every signup lands on *your* box, with a private roster page at `/api/roster`. The installer wires
+it up and generates a roster password (`--backend`, `--roster-user`, `--roster-pass`).
 
 ## Not interactive? (power users, CI, testing)
 
@@ -50,6 +59,17 @@ Everything is drivable by flags or env vars, so it's scriptable and testable:
 
 # Self-host, validate the Compose config without bringing anything up:
 ./install.sh --yes --path compose --domain signup.mytown.org --dry-run
+
+# Self-host and OWN your data (built-in SQLite backend + private roster, no form service):
+./install.sh --yes --path compose --backend --domain signup.mytown.org --roster-user coach
+
+# DigitalOcean one-click Droplet (needs doctl + `doctl auth init`); --do-provision confirms the create:
+./install.sh --yes --path digitalocean --do-droplet --domain signup.mytown.org \
+  --endpoint "https://formspree.io/f/abcdxyz" --do-provision
+
+# DigitalOcean App Platform (free static hosting from your GitHub repo):
+./install.sh --yes --path digitalocean --do-app --do-repo your-user/first-lego-league-team-kit \
+  --endpoint "https://formspree.io/f/abcdxyz"
 
 # See every flag:
 ./install.sh --help

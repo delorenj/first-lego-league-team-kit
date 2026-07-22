@@ -26,7 +26,10 @@ We'll help you find a first step.
 ## If you do want to touch the code
 
 The project is a small, dependency-light static site plus deploy tooling. No build
-step, no framework.
+step, no framework. The pieces: `apps/web/` (the static signup site), `install.sh` (the
+bash installer — no Node/Python needed), `deploy/` (Compose + Traefik stacks), and
+`services/api/` (the optional own-your-data backend — a single **Python-stdlib** file,
+zero pip installs).
 
 ```bash
 git clone https://github.com/delorenj/first-lego-league-team-kit.git
@@ -35,6 +38,13 @@ cp apps/web/config.example.js apps/web/config.js   # your town's details (git-ig
 # open apps/web/index.html in a browser, or:
 cd deploy/compose && cp .env.example .env && docker compose up -d
 ```
+
+**Testing deploy tooling.** The installer is safe to exercise with `--dry-run` (prepares and
+validates everything, runs no live action) and `--config-out /tmp/x.js` (so it never clobbers a real
+`config.js`) — e.g. `./install.sh --yes --path digitalocean --do-app --dry-run --config-out /tmp/x.js`.
+The backend is plain Python: `cd services/api && python3 app.py` (set `ROSTER_USER`/`ROSTER_PASS`) and
+`curl` it, or `docker compose up -d` for the full stack. New deploy paths follow one seam in
+`install.sh`: add a `deploy_<name>()` and one line in `run_path()`.
 
 Read [`AGENTS.md`](AGENTS.md) — it's the project charter (architecture, the design
 system, the roadmap). A few things there are **load-bearing**; please keep them intact:

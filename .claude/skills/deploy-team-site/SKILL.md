@@ -30,10 +30,16 @@ help you can give is to run it *with* them and narrate:**
 ./install.sh --help     # all flags (non-interactive / power-user mode)
 ```
 
-Use it when the coach just wants to get live. Fall through to the hand-walked runbooks below when they
-want to understand each step, are on a path the installer only scaffolds (DigitalOcean / their own
-Traefik), or hit something the installer couldn't finish. Everything in this skill still applies —
-the installer is a convenience layer over the same paths, config, and adapter contract.
+The installer now covers **all four** paths live: email/form-service and Docker Compose end-to-end;
+**DigitalOcean** via `doctl` in two styles — a **Droplet** (provisions the box, runs the stack via
+cloud-init, can create the DNS record) or **App Platform** (`doctl apps` from the coach's GitHub repo) —
+see `docs/deploy/digitalocean.md`; and **Traefik** with a one-click `up` when run on the Traefik host
+(`deploy/traefik/README.md`). On the box paths (Compose + DO-Droplet) the installer can also stand up the
+**own-your-data backend** ([`services/api`](../../services/api/README.md) — SQLite + private roster, no
+third-party form service; `--backend`). Use the installer when the coach just wants to get live. Fall
+through to the hand-walked runbooks below when they want to understand each step, don't have `doctl` set
+up, or hit something the installer couldn't finish. Everything in this skill still applies — the installer
+is a convenience layer over the same paths, config, and adapter contract.
 
 ## Step 0 — Configure the team first (all paths)
 Before deploying anything, they must fill in their team's details. Walk them through copying

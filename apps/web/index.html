@@ -91,16 +91,17 @@
   textarea{resize:vertical;min-height:72px}
 
   /* isometric brick grade buttons (6 studs, staggered piston + angled hop) */
-  .grades{display:flex;gap:12px}
-  .grade-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;
+  /* Fixed-width + wrap so the selector scales to any number of grades (demand-discovery). */
+  .grades{display:flex;gap:10px 12px;flex-wrap:wrap;justify-content:center}
+  .grade-btn{flex:0 0 auto;width:72px;display:flex;flex-direction:column;align-items:center;gap:6px;
     font-family:inherit;cursor:pointer;background:none;border:none;padding:8px 0 2px;--bc:#d7dce6}
-  .isobrick{width:82px;height:auto;overflow:visible;transform-origin:50% 82%}
+  .isobrick{width:60px;height:auto;overflow:visible;transform-origin:50% 82%}
   .isobrick .fc{stroke:var(--ink);stroke-width:2;stroke-linejoin:round;fill:var(--bc)}
   .isobrick .fL{filter:brightness(.72)} .isobrick .fR{filter:brightness(.87)}
   .isobrick .s{stroke:var(--ink);stroke-width:1.5;fill:var(--bc);filter:brightness(1.14);transform:translateY(1.5px)}
   .grade-btn .glabel{font-size:15px;font-weight:800;color:var(--muted);transition:color .18s,transform .16s}
   .grade-btn:hover .isobrick{transform:translateY(-3px)}
-  .grade-btn.sel.red{--bc:var(--red)} .grade-btn.sel.blue{--bc:var(--blue)} .grade-btn.sel.green{--bc:var(--green)}
+  .grade-btn.sel.red{--bc:var(--red)} .grade-btn.sel.blue{--bc:var(--blue)} .grade-btn.sel.green{--bc:var(--green)} .grade-btn.sel.yellow{--bc:var(--yellow)}
   .grade-btn.sel .glabel{color:var(--ink);transform:scale(1.12)}
   .grade-btn.sel .s{animation:piston .5s cubic-bezier(.34,1.7,.5,1) both}
   .grade-btn.sel .s2{animation-delay:.03s} .grade-btn.sel .s3{animation-delay:.06s}
@@ -202,18 +203,18 @@
 
   <div class="kicker" id="kicker">New for Fall 2026 &bull; Your Town, ST</div>
   <h1><span class="b">BUILD.</span> <span class="c">CODE.</span> <span class="p">PLAY.</span></h1>
-  <p class="sub"><span id="townPossessive">Your town's</span> first <strong>FIRST&reg; LEGO&reg; League team for kindergartners</strong> is launching this fall. Kids team up to build and code motorized LEGO models, solve playful missions, and celebrate at a regional expo.</p>
+  <p class="sub"><span id="townPossessive">Your town's</span> first <strong>FIRST&reg; LEGO&reg; League team <span id="heroAudience">for kindergartners</span></strong> is launching this fall. Kids team up to build and code motorized LEGO models, solve playful missions, and celebrate at a regional expo.</p>
 
   <div class="chips">
-    <div class="chip"><h3><span class="dot bg-red"></span>Who</h3><p><strong>Grades K&ndash;2, ages 5&ndash;7.</strong> No experience needed.</p></div>
-    <div class="chip"><h3><span class="dot bg-blue"></span>What</h3><p>The new <strong>FIRST LEGO League K&ndash;2</strong> program with LEGO&reg; Education kits.</p></div>
+    <div class="chip"><h3><span class="dot bg-red"></span>Who</h3><p><strong id="whoGrades">Grades K&ndash;2, ages 5&ndash;7.</strong> No experience needed.</p></div>
+    <div class="chip"><h3><span class="dot bg-blue"></span>What</h3><p>The <strong id="whatProgram">FIRST LEGO League K&ndash;2</strong> program with <span id="whatKit">LEGO&reg; Education kits</span>.</p></div>
     <div class="chip"><h3><span class="dot bg-green"></span>When</h3><p><strong>1 hour a week</strong> after school, September through winter.</p></div>
     <div class="chip"><h3><span class="dot bg-yellow"></span>Cost</h3><p>About <strong><span id="cost">$125</span> per child</strong>, all materials included.</p></div>
   </div>
 
   <div class="form-card" id="formCard">
     <h2>Grab a spot 🧱</h2>
-    <div class="spots">Only <span id="spots">8</span> spots on the team — first come, first built.</div>
+    <div class="spots" id="spotsLine">Only 8 spots on the team — first come, first built.</div>
     <form id="signupForm" novalidate>
       <label for="parentName">Parent / guardian name</label>
       <input type="text" id="parentName" name="parentName" required autocomplete="name">
@@ -314,6 +315,16 @@
     var schoolName   = cfg(c.schoolName,   'your school');
     var siteUrl      = cfg(c.siteUrl,      '');
 
+    // Division-specific framing (grade band, ages, program). Defaults describe the K–2 example team;
+    // override per division in config.js (e.g. Explore → "Grades 2–4" / "ages 6–10").
+    var gradeBand   = cfg(c.gradeBand,   'Grades K–2');
+    var ageRange    = cfg(c.ageRange,    'ages 5–7');
+    var audience    = cfg(c.audience,    'kindergartners');
+    var programName = cfg(c.programName, 'FIRST LEGO League K–2');
+    var programKit  = cfg(c.programKit,  'LEGO® Education kits');
+    var grades      = (Object.prototype.toString.call(c.grades) === '[object Array]' && c.grades.length)
+                      ? c.grades : ['K', '1st', '2nd'];
+
     var titleText = townOrTeam + ' LEGO League — Build. Code. Play.';
     document.title = titleText;
 
@@ -321,8 +332,8 @@
     function setAttr(id, attr, v) { var el = document.getElementById(id); if (el) el.setAttribute(attr, v); }
 
     setAttr('ogTitle', 'content', titleText);
-    setAttr('metaDesc', 'content', 'Sign up for ' + townOrTeam + "'s first FIRST LEGO League team for kindergartners. Grades K-2, ages 5-7. Build and code motorized LEGO models!");
-    setAttr('ogDesc', 'content', townOrTeam + "'s first LEGO robotics team for K-2 kids. Only " + spots + ' spots. Sign up now!');
+    setAttr('metaDesc', 'content', 'Sign up for ' + townOrTeam + "'s first FIRST LEGO League team. " + gradeBand + ', ' + ageRange + '. Build and code with LEGO!');
+    setAttr('ogDesc', 'content', townOrTeam + "'s first FIRST LEGO League team — " + gradeBand + '. Sign up now!');
 
     // og:url is optional; drive it from config or drop it entirely (never a baked-in personal URL).
     var ogUrl = document.getElementById('ogUrl');
@@ -333,8 +344,36 @@
 
     setText('kicker', 'New for ' + seasonLabel + ' • ' + region);
     setText('townPossessive', townOrTeam + "'s");
+    setText('heroAudience', 'for ' + audience);
+    setText('whoGrades', gradeBand + ', ' + ageRange + '.');
+    setText('whatProgram', programName);
+    setText('whatKit', programKit);
     setText('cost', costPerChild);
-    setText('spots', spots);
+    // The scarcity/CTA line above the form. Default plays up the small roster; override in config
+    // (e.g. demand-gauging teams: "Spots are limited — sign up to save your child's place…").
+    setText('spotsLine', cfg(c.spotsLine, 'Only ' + spots + ' spots on the team — first come, first built.'));
+
+    // Build the grade buttons from config — ANY number of grades (a demand-discovery form should
+    // capture every grade, not lock to one division). Reuse the first brick's SVG; cycle 4 colors.
+    var gwrap = document.getElementById('grades');
+    if (gwrap) {
+      var tmpl = gwrap.querySelector('.isobrick');
+      var svg = tmpl ? tmpl.outerHTML : '';
+      var palette = ['red', 'blue', 'green', 'yellow'];
+      gwrap.innerHTML = '';
+      grades.forEach(function (g, i) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'grade-btn ' + palette[i % palette.length];
+        btn.setAttribute('data-v', g);
+        btn.innerHTML = svg;
+        var lbl = document.createElement('span');
+        lbl.className = 'glabel';
+        lbl.textContent = g;
+        btn.appendChild(lbl);
+        gwrap.appendChild(btn);
+      });
+    }
     setText('footSchool', schoolName);
     setText('footSeason', seasonName);
     setText('discSchool', schoolName);

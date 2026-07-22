@@ -1,0 +1,20 @@
+# Own-your-data stack: Caddy serves the static site AND reverse-proxies /api/* to the signup backend,
+# all on one domain (so the front end uses signupEndpoint "/api/signup" — same origin, no CORS drama).
+# SITE_DOMAIN=localhost  -> https://localhost with a local cert (great for testing)
+# SITE_DOMAIN=your.domain -> Caddy fetches a real Let's Encrypt cert (needs 80/443 reachable)
+{$SITE_DOMAIN} {
+	encode gzip
+
+	# Anything under /api/* is the backend (signups + the private roster).
+	@api path /api/*
+	handle @api {
+		reverse_proxy api:8080
+	}
+
+	# Everything else is the static signup site.
+	handle {
+		root * /srv
+		file_server
+		try_files {path} {path}/ /index.html
+	}
+}

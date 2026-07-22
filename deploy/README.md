@@ -11,7 +11,8 @@ Paths (easiest → most control):
 | --- | --- | --- | --- |
 | **Static + form service** | with Formspree/Google | a static host (free) | `.claude/skills/deploy-team-site/references/static-form-service.md` |
 | **Docker Compose** | ✅ your box | Docker + a domain/tunnel | [`compose/`](compose/) · `…/references/docker-compose.md` |
-| **DigitalOcean** | cloud / your droplet | a DO login | [`../docs/deploy/digitalocean.md`](../docs/deploy/digitalocean.md) |
+| **Docker Compose + built-in backend** | ✅ your box (SQLite) | Docker + a domain | [`../services/api/`](../services/api/README.md) — own your data, private roster |
+| **DigitalOcean** | ✅ your droplet | `doctl` (one-click) or a DO login | [`../docs/deploy/digitalocean.md`](../docs/deploy/digitalocean.md) |
 | **Your own Traefik + tunnel** | ✅ your box | existing Traefik | [`traefik/`](traefik/) · [`traefik/README.md`](traefik/README.md) |
 | **Vercel** | cloud DB (roadmap) | a Vercel login | [`vercel/`](vercel/) · `…/references/vercel.md` |
 
