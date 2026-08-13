@@ -51,8 +51,8 @@ system, the roadmap). A few things there are **load-bearing**; please keep them 
 
 - **The signup adapter contract.** The front end POSTs one fixed
   `application/x-www-form-urlencoded` payload (`parentName, parentEmail, parentPhone,
-  childName, childGrade, notes, source`) to one configurable `signupEndpoint`. New
-  fields → add them to the payload *and* document them for every deploy path.
+  childName, childGrade, helpWith, notes, source`) to one configurable `signupEndpoint`.
+  New fields → add them to the payload *and* document them for every deploy path.
 - **Config-driven, not hard-coded.** Team-specific text/URLs/emails live in
   `apps/web/config.js` (git-ignored) and `config.example.js` (the neutral template).
   The shipped defaults must stay generic — never bake in a real town, email, or URL.

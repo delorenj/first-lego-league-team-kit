@@ -20,9 +20,9 @@ Works with the site as-is (returns proper CORS + JSON; leave `optimisticSubmit: 
    function doPost(e) {
      var ss = SpreadsheetApp.getActiveSpreadsheet();
      var sh = ss.getSheetByName('Signups') || ss.insertSheet('Signups');
-     if (sh.getLastRow() === 0) sh.appendRow(['when','parent','email','phone','child','grade','notes','source']);
+     if (sh.getLastRow() === 0) sh.appendRow(['when','parent','email','phone','child','grade','can help','notes','source']);
      var p = e.parameter;
-     sh.appendRow([new Date(), p.parentName, p.parentEmail, p.parentPhone, p.childName, p.childGrade, p.notes, p.source]);
+     sh.appendRow([new Date(), p.parentName, p.parentEmail, p.parentPhone, p.childName, p.childGrade, p.helpWith, p.notes, p.source]);
      return ContentService.createTextOutput(JSON.stringify({ ok: true })).setMimeType(ContentService.MimeType.JSON);
    }
    ```

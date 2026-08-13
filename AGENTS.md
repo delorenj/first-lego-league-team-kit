@@ -67,8 +67,17 @@ The front end is backend-agnostic. It emits **one payload shape** to **one confi
 
 ```
 POST {config.signupEndpoint}   (Content-Type: application/x-www-form-urlencoded — dodges CORS preflight on purpose)
-parentName, parentEmail, parentPhone, childName, childGrade, notes, source
+parentName, parentEmail, parentPhone, childName, childGrade, helpWith, notes, source
 ```
+
+`helpWith` is the **volunteer ask**: the "Can you help?" options a parent ticked, semicolon-separated
+(`""` when none). It is one string, not repeated keys — Sheets/Formspree/n8n flatten repeats
+differently, and the contract has to mean the same thing on every adapter. It exists because a new
+team's co-coach is overwhelmingly likely to already be *in its own signup pool*: asking a parent who
+has just committed their child converts far better than a cold ask months earlier. So the funnel
+recruits kids first and harvests grown-ups from the same form. Options come from `helpOptions` in
+`config.js` (`[]` hides the block); `services/api` highlights offering parents on the roster and flags
+them in the notification subject.
 
 Any destination that accepts that POST is a valid adapter. Three shipped tiers, easiest → most control:
 
@@ -89,6 +98,8 @@ Adding a knob = add a field to `config.js` + `config.example.js` + read it in `i
 swaps the site between one Explore team (grades 2–4), a K–2 team, or a wide **demand-discovery** net
 (e.g. `grades: ["K".."5th"]` + a "we're forming teams by grade" `spotsLine`) that measures interest
 across grades before you commit to a division. Defaults describe the K–2 example.
+`helpOptions` (+ optional `helpPrompt`) drives the **"Can you help?"** checkboxes above the submit
+button — any number of options, `[]` to hide the block entirely.
 
 ### Recruiting kit (the full funnel)
 Awareness → signup → confirmation → roster:
@@ -97,6 +108,8 @@ Awareness → signup → confirmation → roster:
 - **Social** (`recruiting/social/`) — Facebook/Nextdoor/text-chain post copy (3 lengths) to reach local families online.
 - **Site** (`apps/web/`) — the 30-second mobile signup.
 - **Roster/admin** — coach sees who signed up (`services/api` `/api/roster`, own-your-data path; hosted-form tiers see it in their dashboard).
+- **Volunteer bench** — the same signup harvests grown-ups (`helpWith`). A coach with no co-coach is
+  a stalled team, and cold-asking friends is the step that fails; the funnel is what unsticks it.
 
 > **Personal-fill convention:** the shipped files under `recruiting/**` are neutral templates with
 > `{{placeholders}}`. A coach's real filled copies use a `*.filled.md` suffix and are **git-ignored**

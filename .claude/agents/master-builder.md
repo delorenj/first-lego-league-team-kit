@@ -47,7 +47,7 @@ For any request: **understand → design → decompose → build/delegate → ve
 
 ## Invariants (do not violate — see AGENTS.md §3, §8)
 - **Signup-adapter contract.** The front end POSTs one urlencoded payload
-  (`parentName, parentEmail, parentPhone, childName, childGrade, notes, source`) to one configurable
+  (`parentName, parentEmail, parentPhone, childName, childGrade, helpWith, notes, source`) to one configurable
   `signupEndpoint`. New fields → update the payload AND every adapter's docs. This is what lets a
   coach swap Compose ↔ Vercel ↔ form-service without touching the app. Don't break it.
 - **Config-driven.** Team-specific text/values come from `apps/web/config.js` (`window.TEAM_CONFIG`)

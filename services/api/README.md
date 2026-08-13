@@ -48,9 +48,20 @@ get the email. The roster always works with no external services.
   (`docker compose down -v`). Tell families where their data lives and delete it at season's end
   (`AGENTS.md` §8).
 
+## Finding your co-coach
+The signup carries a `helpWith` field — the **"Can you help?"** boxes a parent ticked. Parents who
+offered are highlighted on the roster, counted in a `🙋 N offered to help` pill, and flagged in the
+notification email's subject line, because that reply is worth sending the same day. Most new teams
+find their second adult here rather than through a cold ask. Turn the options into whatever you
+actually need via `helpOptions` in `apps/web/config.js`.
+
+An older `signups.db` is migrated in place on boot — new contract columns are `ALTER TABLE`d in and
+existing rows are left alone, so upgrading the kit never costs you your signups.
+
 ## Data minimization (guardrail)
-Stores **only** the contract fields — a child's first name + grade and a parent's contact info. No last
-names, DOB, addresses, or photos. The roster is auth-gated and marked `noindex`. Keep it that way.
+Stores **only** the contract fields — a child's first name + grade, a parent's contact info, and what
+that parent volunteered for. No last names, DOB, addresses, or photos. The roster is auth-gated and
+marked `noindex`. Keep it that way.
 
 ## Test-signup checklist
 - [ ] `curl -fsS https://SITE_DOMAIN/api/health` → `{"ok": true, ...}`

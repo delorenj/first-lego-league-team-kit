@@ -45,6 +45,22 @@ window.TEAM_CONFIG = {
   // (good for selling one team). Override for a demand-gauging, all-grades-welcome tone, e.g.:
   //   spotsLine: "Spots are limited — sign up to save your child's place. We're forming teams by grade this fall.",
 
+  // ── "Can you help?" — turn your signups into your volunteer bench ──────────────────────────
+  // Every new team needs a second grown-up in the room, and your co-coach is almost always already
+  // in your own signup pool. Asking HERE — right after a parent has committed their child — converts
+  // far better than asking cold, months earlier. List ANY number of options (they stack); each is a
+  // checkbox, and the ticked ones ride along in the signup as `helpWith` (semicolon-separated).
+  // Set to [] to hide the whole block.
+  helpOptions: [
+    "Be a co-coach with me",
+    "Be a second adult in the room some weeks",
+    "Help with snacks & logistics",
+    "Help find a place to meet",
+    "Just the big expo day",
+  ],
+  // Optional: override the line under "Can you help?" — keep it low-pressure and specific.
+  //   helpPrompt: "Totally optional. Even one 'yes' makes the season happen.",
+
   // Optional: override the four LEGO brick colors. Delete this line to keep the classic palette.
   // colors: { red: "#D01012", yellow: "#F6BE00", blue: "#0057A6", green: "#00873E" },
 };

@@ -9,8 +9,11 @@ service, no cloud database. Zero third-party dependencies: Python standard libra
 
 Endpoints
   POST /api/signup            (application/x-www-form-urlencoded)
-       parentName, parentEmail, parentPhone, childName, childGrade, notes, source
+       parentName, parentEmail, parentPhone, childName, childGrade, helpWith, notes, source
        -> validate + honeypot -> INSERT into SQLite -> (optional) email the coach -> 200 {"ok": true}
+       helpWith = the ticked "Can you help?" options, semicolon-separated ("" if none). Parents who
+       offer are flagged in the notification subject and highlighted on the roster — a new team's
+       co-coach usually turns up in its own signup pool, so this is the field worth watching.
   GET  /api/roster            (HTTP Basic auth)            -> neo-brutalist HTML roster
   GET  /api/roster?format=json|csv   (auth)               -> machine-readable / spreadsheet export
   POST /api/roster/delete     (auth) id=<n>               -> delete one signup (privacy: prune a test/duplicate)
@@ -25,9 +28,10 @@ Config via environment (all optional unless noted)
                                   set SMTP_HOST (+ COACH_EMAIL) to turn on email notifications
   MAX_BODY_BYTES=65536            reject oversized POST bodies
 
-Guardrails (AGENTS.md §8): we store ONLY the contract fields — a child's first name + grade and a
-parent's contact info. No last names, DOB, addresses, or photos. The roster is auth-gated and the
-coach can delete any row. A failed email never fails a signup (the data is saved first).
+Guardrails (AGENTS.md §8): we store ONLY the contract fields — a child's first name + grade, a
+parent's contact info, and what that parent volunteered for. No last names, DOB, addresses, or
+photos. The roster is auth-gated and the coach can delete any row. A failed email never fails a
+signup (the data is saved first).
 """
 
 import base64
@@ -61,7 +65,8 @@ SMTP_TLS       = os.environ.get("SMTP_TLS", "1") not in ("0", "false", "no", "")
 MAX_BODY_BYTES = int(os.environ.get("MAX_BODY_BYTES", "65536"))
 
 # The Signup Adapter Contract fields (AGENTS.md §3), in roster/CSV column order.
-FIELDS = ["parentName", "parentEmail", "parentPhone", "childName", "childGrade", "notes", "source"]
+FIELDS = ["parentName", "parentEmail", "parentPhone", "childName", "childGrade",
+          "helpWith", "notes", "source"]
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
@@ -75,30 +80,34 @@ def db():
 
 
 def init_db():
+    """Create the table, then add any contract field an older database predates.
+
+    The adapter contract grows (AGENTS.md §3) and a coach's signups.db has to survive the upgrade
+    with its rows intact, so every FIELDS entry is ALTER-ed in on boot if it isn't already a column.
+    FIELDS are hardcoded identifiers, never user input, so interpolating them into DDL is safe.
+    """
     with db() as conn:
+        cols = ",\n                 ".join(f"{f:<12} TEXT" for f in FIELDS)
         conn.execute(
-            """CREATE TABLE IF NOT EXISTS signups (
-                 id           INTEGER PRIMARY KEY AUTOINCREMENT,
-                 ts           TEXT NOT NULL,
-                 parentName   TEXT,
-                 parentEmail  TEXT,
-                 parentPhone  TEXT,
-                 childName    TEXT,
-                 childGrade   TEXT,
-                 notes        TEXT,
-                 source       TEXT
-               )"""
+            "CREATE TABLE IF NOT EXISTS signups (\n"
+            "                 id           INTEGER PRIMARY KEY AUTOINCREMENT,\n"
+            "                 ts           TEXT NOT NULL,\n"
+            f"                 {cols}\n"
+            "               )"
         )
+        have = {r["name"] for r in conn.execute("PRAGMA table_info(signups)")}
+        for f in FIELDS:
+            if f not in have:
+                conn.execute(f"ALTER TABLE signups ADD COLUMN {f} TEXT")
+                print(f"[db] migrated: added column '{f}' to signups", file=sys.stderr)
 
 
 def insert_signup(rec):
+    cols = ["ts"] + FIELDS
     with db() as conn:
         cur = conn.execute(
-            "INSERT INTO signups (ts, parentName, parentEmail, parentPhone, childName, childGrade, notes, source)"
-            " VALUES (?,?,?,?,?,?,?,?)",
-            (datetime.now(timezone.utc).isoformat(timespec="seconds"),
-             rec["parentName"], rec["parentEmail"], rec["parentPhone"],
-             rec["childName"], rec["childGrade"], rec["notes"], rec["source"]),
+            f"INSERT INTO signups ({', '.join(cols)}) VALUES ({', '.join('?' * len(cols))})",
+            [datetime.now(timezone.utc).isoformat(timespec="seconds")] + [rec[f] for f in FIELDS],
         )
         return cur.lastrowid
 
@@ -123,8 +132,10 @@ def notify_coach(rec, rid):
     if not (SMTP_HOST and COACH_EMAIL):
         return  # email notifications not configured — the signup is already saved
     try:
+        offered = (rec.get("helpWith") or "").strip()
         msg = EmailMessage()
-        msg["Subject"] = f"🧱 New LEGO League signup: {rec['childName'] or 'a builder'} (grade {rec['childGrade']})"
+        msg["Subject"] = (f"🧱 New LEGO League signup: {rec['childName'] or 'a builder'} "
+                          f"(grade {rec['childGrade']})" + (" — 🙋 OFFERED TO HELP" if offered else ""))
         msg["From"] = SMTP_FROM
         msg["To"] = COACH_EMAIL
         if EMAIL_RE.match(rec["parentEmail"] or ""):
@@ -132,6 +143,11 @@ def notify_coach(rec, rid):
         body = "A family just signed up for your team.\n\n" + "\n".join(
             f"  {k}: {rec[k]}" for k in FIELDS
         ) + f"\n\nSignup #{rid}. See the full roster at /api/roster.\n"
+        if offered:
+            # Surfaced up top on purpose: this is the reply worth sending today, not at season's end.
+            body = (f"🙋 {rec['parentName'] or 'This parent'} offered to help: {offered}\n"
+                    f"   Reply to this email while it's fresh — that's how a team gets its second adult.\n\n"
+                    + body)
         msg.set_content(body)
         with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10) as s:
             if SMTP_TLS:
@@ -156,12 +172,17 @@ h1{font-size:1.9rem;font-weight:800;letter-spacing:-.02em;margin:.2em 0}
 .pill{border:3px solid var(--ink);border-radius:10px;padding:6px 12px;font-weight:700;background:#fff;
 box-shadow:4px 4px 0 var(--ink);text-decoration:none;color:var(--ink);display:inline-block}
 .pill.count{background:var(--yel)}.pill.csv{background:var(--grn);color:#fff}.pill.json{background:var(--blu);color:#fff}
+.pill.helpers{background:var(--red);color:#fff}
 table{width:100%;border-collapse:separate;border-spacing:0;border:3px solid var(--ink);border-radius:12px;
 overflow:hidden;box-shadow:6px 6px 0 var(--ink);background:#fff}
 th,td{padding:10px 12px;text-align:left;border-bottom:2px solid #ece9df;font-size:.94rem;vertical-align:top}
 th{background:var(--ink);color:var(--paper);font-weight:700;letter-spacing:.01em}
 tr:last-child td{border-bottom:none}tr:nth-child(even) td{background:#fbfaf4}
-td.grade{font-weight:800}.del{border:2px solid var(--ink);background:var(--red);color:#fff;border-radius:8px;
+td.grade{font-weight:800}
+tr.offered td{background:#fffbe9 !important}
+td.help span{display:inline-block;background:var(--yel);border:2px solid var(--ink);border-radius:6px;
+padding:1px 7px;margin:1px 3px 1px 0;font-size:.8rem;font-weight:700}
+.del{border:2px solid var(--ink);background:var(--red);color:#fff;border-radius:8px;
 padding:4px 10px;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 var(--ink);font-family:inherit}
 .empty{border:3px dashed var(--ink);border-radius:12px;padding:40px;text-align:center;color:var(--muted)}
 .foot{color:var(--muted);font-size:.82rem;margin-top:18px;line-height:1.5}
@@ -171,6 +192,7 @@ padding:4px 10px;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 var(--ink);
 def roster_html(rows):
     studs = '<div class="studs"><i style="background:var(--red)"></i><i style="background:var(--yel)"></i>' \
             '<i style="background:var(--blu)"></i><i style="background:var(--grn)"></i></div>'
+    helpers = sum(1 for r in rows if (r.get("helpWith") or "").strip())
     head = (f"<!doctype html><html lang=en><head><meta charset=utf-8>"
             f"<meta name=viewport content='width=device-width,initial-scale=1'>"
             f"<meta name=robots content='noindex,nofollow'>"
@@ -178,27 +200,37 @@ def roster_html(rows):
             f"<h1>Your team roster 🧱</h1>"
             f"<p class=sub>Every signup, newest first. This page is private (password-protected) and not indexed.</p>"
             f"<div class=bar><span class='pill count'>{len(rows)} signed up</span>"
-            f"<a class='pill csv' href='/api/roster?format=csv'>Download CSV</a>"
+            + (f"<span class='pill helpers'>🙋 {helpers} offered to help</span>" if helpers else "")
+            + f"<a class='pill csv' href='/api/roster?format=csv'>Download CSV</a>"
             f"<a class='pill json' href='/api/roster?format=json'>JSON</a></div>")
     if not rows:
         return head + "<div class=empty>No signups yet. Share your flyer's QR code and watch them roll in. 🚀</div></body></html>"
     trs = []
     for r in rows:
-        cells = "".join(
-            f"<td class='{ 'grade' if k=='childGrade' else '' }'>{html.escape(str(r.get(k) or ''))}</td>"
-            for k in ["ts"] + FIELDS
-        )
+        offered = (r.get("helpWith") or "").strip()
+        cells = []
+        for k in ["ts"] + FIELDS:
+            v = str(r.get(k) or "")
+            if k == "helpWith":
+                # one chip per ticked option, so a willing parent is visible at a glance
+                chips = "".join(f"<span>{html.escape(p.strip())}</span>"
+                                for p in v.split(";") if p.strip())
+                cells.append(f"<td class=help>{chips}</td>")
+            else:
+                cells.append(f"<td class='{'grade' if k == 'childGrade' else ''}'>{html.escape(v)}</td>")
         delbtn = (f"<td><form method=post action='/api/roster/delete' "
                   f"onsubmit=\"return confirm('Delete this signup? This cannot be undone.')\" style=margin:0>"
                   f"<input type=hidden name=id value='{r['id']}'>"
                   f"<button class=del type=submit>Delete</button></form></td>")
-        trs.append("<tr>" + cells + delbtn + "</tr>")
+        trs.append(f"<tr class='{'offered' if offered else ''}'>" + "".join(cells) + delbtn + "</tr>")
     header = "".join(f"<th>{h}</th>" for h in
-                     ["when", "parent", "email", "phone", "child", "grade", "notes", "source", ""])
-    foot = ("<p class=foot>Privacy: this holds a child's first name + grade and a parent's contact info — "
-            "the minimum to run a team. Tell families where their data lives, and delete it at season's end "
-            "(the <b>Delete</b> button removes a row; the whole database is the single SQLite file at "
-            f"<code>{html.escape(DB_PATH)}</code> on your box).</p>")
+                     ["when", "parent", "email", "phone", "child", "grade", "can help", "notes", "source", ""])
+    foot = ("<p class=foot>Highlighted rows are parents who offered to help — those are the ones to email "
+            "back today; a new team's co-coach almost always comes out of its own signup list.<br>"
+            "Privacy: this holds a child's first name + grade, a parent's contact info, and what they "
+            "volunteered for — the minimum to run a team. Tell families where their data lives, and delete "
+            "it at season's end (the <b>Delete</b> button removes a row; the whole database is the single "
+            f"SQLite file at <code>{html.escape(DB_PATH)}</code> on your box).</p>")
     return head + f"<table><thead><tr>{header}</tr></thead><tbody>{''.join(trs)}</tbody></table>" + foot + "</body></html>"
 
 

@@ -117,6 +117,28 @@
     100%{transform:translateY(0) rotate(0deg)}
   }
 
+  /* "Can you help?" — the volunteer ask, deliberately placed just before Submit (a parent who has
+     already filled the form in is far likelier to tick a box than one asked cold). Config-driven. */
+  .help-ask{margin-top:24px;border:3px solid var(--ink);border-radius:14px;background:#fffbe9;
+    box-shadow:4px 4px 0 var(--ink);padding:16px 16px 14px}
+  .help-ask h3{font-size:16px;font-weight:800;margin-bottom:3px}
+  .help-ask .why{font-size:13px;color:var(--muted);margin-bottom:12px}
+  .help-opt{position:relative;display:flex;align-items:flex-start;gap:10px;font-size:14px;font-weight:600;
+    margin:0 0 8px;padding:9px 11px;background:#fff;border:2.5px solid var(--ink);border-radius:10px;
+    cursor:pointer;transition:transform .14s,box-shadow .14s}
+  .help-opt:last-child{margin-bottom:0}
+  .help-opt:hover{transform:translate(-2px,-2px);box-shadow:3px 3px 0 var(--ink)}
+  .help-opt input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+  .help-opt .box{flex:0 0 auto;width:20px;height:20px;margin-top:1px;border:2.5px solid var(--ink);
+    border-radius:6px;background:var(--paper);display:grid;place-items:center;
+    font-size:13px;font-weight:800;color:#fff;line-height:1;transition:background .14s}
+  .help-opt .box::after{content:'✓';opacity:0;transform:scale(.4);
+    transition:opacity .15s,transform .2s cubic-bezier(.34,1.7,.5,1)}
+  .help-opt input:focus-visible ~ .box{box-shadow:0 0 0 3px var(--blue)}
+  .help-opt.on{box-shadow:3px 3px 0 var(--ink)}
+  .help-opt.on .box{background:var(--hc,var(--green))}
+  .help-opt.on .box::after{opacity:1;transform:scale(1)}
+
   .submit{width:100%;margin-top:26px;font-family:inherit;font-size:18px;font-weight:800;color:#fff;background:var(--red);
     border:3px solid var(--ink);border-radius:12px;padding:16px 0 14px;cursor:pointer;box-shadow:5px 5px 0 var(--ink);
     position:relative;transition:transform .12s,box-shadow .12s;letter-spacing:.02em}
@@ -173,6 +195,8 @@
     .float{animation:none}
     .anim .stud,.anim h1 span,.success .bricks span,.grade-btn.sel .s,.grade-btn.sel .isobrick{animation:none}
     .grade-btn.sel .s{transform:translateY(-5px)}
+    .help-opt,.help-opt .box,.help-opt .box::after{transition:none}
+    .help-opt:hover{transform:none}
     html{scroll-behavior:auto}
   }
 </style>
@@ -274,6 +298,13 @@
       <label for="notes">Anything we should know? <span class="opt">(optional)</span></label>
       <textarea id="notes" name="notes" placeholder="Allergies, schedule conflicts, sibling interest, favorite LEGO set..."></textarea>
 
+      <!-- volunteer ask; options come from config.helpOptions (empty list → block stays hidden) -->
+      <div class="help-ask" id="helpAsk" hidden>
+        <h3>Can you help? 🙌</h3>
+        <p class="why" id="helpPrompt">Totally optional — but a parent-run team needs a couple of grown-ups. No robotics experience required.</p>
+        <div id="helpOpts"></div>
+      </div>
+
       <div class="hp"><label for="website">Website</label><input type="text" id="website" name="website" tabindex="-1" autocomplete="off"></div>
 
       <button type="submit" class="submit" id="submitBtn">Sign us up! &rarr;</button>
@@ -285,6 +316,7 @@
     <div class="bricks"><span>🔴</span><span>🟡</span><span>🔵</span><span>🟢</span></div>
     <h2>You're on the list!</h2>
     <p><strong id="echoName">Your builder</strong> is officially in the queue. We'll email you within a few days with meeting details and next steps.</p>
+    <p id="helpThanks" hidden>And <strong>thank you</strong> for offering to help — that's the piece every new team is short on. We'll be in touch about it personally. 🧱</p>
     <p>Questions in the meantime? <strong id="successEmail">coach@example.com</strong></p>
   </div>
 
@@ -374,6 +406,37 @@
         gwrap.appendChild(btn);
       });
     }
+    // "Can you help?" — ANY number of checkboxes, built from config. An explicit [] hides the block;
+    // an absent key keeps the defaults, because a brand-new team always needs a second grown-up.
+    var helpOptions = (Object.prototype.toString.call(c.helpOptions) === '[object Array]')
+      ? c.helpOptions
+      : ['Be a co-coach with me', 'Be a second adult in the room some weeks',
+         'Help with snacks & logistics', 'Help find a place to meet', 'Just the big expo day'];
+    var helpAsk = document.getElementById('helpAsk');
+    var helpOpts = document.getElementById('helpOpts');
+    if (helpAsk && helpOpts && helpOptions.length) {
+      var hpal = ['green', 'blue', 'red', 'yellow'];
+      helpOptions.forEach(function (opt, i) {
+        var lab = document.createElement('label');
+        lab.className = 'help-opt';
+        lab.style.setProperty('--hc', 'var(--' + hpal[i % hpal.length] + ')');
+        var inp = document.createElement('input');
+        inp.type = 'checkbox';
+        inp.value = opt;
+        var box = document.createElement('span');
+        box.className = 'box';
+        var txt = document.createElement('span');
+        txt.textContent = opt;
+        // input first so `input:focus-visible ~ .box` can ring the box for keyboard users
+        lab.appendChild(inp); lab.appendChild(box); lab.appendChild(txt);
+        inp.addEventListener('change', function () { lab.classList.toggle('on', inp.checked); });
+        helpOpts.appendChild(lab);
+      });
+      setText('helpPrompt', cfg(c.helpPrompt,
+        "Totally optional — but a parent-run team needs a couple of grown-ups. You don't need to know a thing about robotics; the coach handles that."));
+      helpAsk.hidden = false;
+    }
+
     setText('footSchool', schoolName);
     setText('footSeason', seasonName);
     setText('discSchool', schoolName);
@@ -428,18 +491,29 @@
     var btn = document.getElementById('submitBtn');
     btn.disabled = true; btn.textContent = 'Snapping bricks...';
 
+    // Ticked "Can you help?" boxes ride along as ONE semicolon-joined field — repeated keys aren't
+    // safe across every adapter (Sheets/Formspree/n8n flatten them differently). Empty string = none.
+    var helpWith = [];
+    Array.prototype.forEach.call(
+      document.querySelectorAll('#helpOpts input:checked'),
+      function (el) { helpWith.push(el.value); }
+    );
+
     var body = new URLSearchParams({
       parentName: f.parentName.value.trim(),
       parentEmail: f.parentEmail.value.trim(),
       parentPhone: f.parentPhone.value.trim(),
       childName: f.childName.value.trim(),
       childGrade: grade || 'not specified',
+      helpWith: helpWith.join('; '),
       notes: f.notes.value.trim(),
       source: 'web'
     });
 
     function onOk() {
       document.getElementById('echoName').textContent = f.childName.value.trim() || 'Your builder';
+      var ht = document.getElementById('helpThanks');
+      if (ht && helpWith.length) { ht.hidden = false; }
       document.getElementById('formCard').style.display = 'none';
       var s = document.getElementById('successCard');
       s.style.display = 'block';
