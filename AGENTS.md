@@ -126,6 +126,13 @@ Awareness → signup → confirmation → roster:
 > **Personal-fill convention:** the shipped files under `recruiting/**` are neutral templates with
 > `{{placeholders}}`. A coach's real filled copies use a `*.filled.md` suffix and are **git-ignored**
 > (like `config.js`) so no personal name/email/URL ever ships. Never bake real details into a template.
+>
+> **Deliver outreach where it gets sent, not where it gets read.** A filled email is only done when it's
+> a **draft in the coach's mail client** — for Jarad, create it with the Gmail MCP (`create_draft`,
+> never `send`; he edits and sends). The `.filled.md` is the durable copy and the place for *timing and
+> strategy notes that don't belong in the email body* — who to send to, when, what not to say. Pasting
+> email text into chat and stopping there leaves the last mile of work on the human. Same rule for any
+> outreach artifact with a real destination: put it in the tool that sends it.
 
 ---
 
