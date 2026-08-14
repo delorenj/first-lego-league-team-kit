@@ -111,6 +111,18 @@ Awareness → signup → confirmation → roster:
 - **Volunteer bench** — the same signup harvests grown-ups (`helpWith`). A coach with no co-coach is
   a stalled team, and cold-asking friends is the step that fails; the funnel is what unsticks it.
 
+> **Program facts the kit has to respect** (verified against firstinspires.org + FIRST Mid-Atlantic,
+> Aug 2026 — recheck before the next season, these move):
+> - **Two screened lead coaches are mandatory**, not aspirational. As of 2026–27 a team cannot access
+>   its youth roster until *both* Lead Coach 1 and 2 clear Youth Protection, and FMA won't let a team
+>   register for an event unless FIRST shows it `Event Ready`. This is why `helpOptions` exists.
+> - **Roster caps:** Explore traditional = 2 coaches + **2–6 kids** ($150/season); Class Pack = up to 24
+>   with one facilitator ($715, and *cannot* attend an official festival). `spots` is free-form, so a
+>   coach can over-recruit deliberately — but the kit should never imply a seat it can't deliver.
+> - **2026–27 BIOGLOW is the final FIRST LEGO League season**; LEGO Education relaunches it as
+>   "LEGO League" in 2027. Don't write copy that assumes an open-ended FLL future — and note this is a
+>   *recruiting asset*, since it makes a coach's ask a one-season commitment with a published end date.
+
 > **Personal-fill convention:** the shipped files under `recruiting/**` are neutral templates with
 > `{{placeholders}}`. A coach's real filled copies use a `*.filled.md` suffix and are **git-ignored**
 > (like `config.js`) so no personal name/email/URL ever ships. Never bake real details into a template.

@@ -24,7 +24,13 @@ window.TEAM_CONFIG = {
   seasonName:   "2026–27 BIOGLOW",    // official season name (footer)
   coachName:    "Coach",              // your first name (optional)
   coachEmail:   "coach@example.com",  // questions + mailto fallback — shown publicly
-  spots:        8,                    // roster size — "Only N spots"
+  // Roster size — "Only N spots". Know the real cap before you promise it: for 2026–27 a
+  // traditional FLL Explore team is 2 adult coaches + 2–6 kids, and Challenge is up to 10.
+  // A Class Pack holds up to 24 but costs $715/season vs $150 and can't attend an official
+  // festival. Setting this ABOVE the cap on purpose is a legitimate strategy — extra signups
+  // become a second team and, more importantly, a bigger pool to find your co-coach in (see
+  // helpOptions below) — but say so in spotsLine so no family thinks they're guaranteed a seat.
+  spots:        8,
   costPerChild: "$125",               // per-child cost, your currency string
   schoolName:   "your school",        // full school name (footer/disclaimer)
 
@@ -46,10 +52,13 @@ window.TEAM_CONFIG = {
   //   spotsLine: "Spots are limited — sign up to save your child's place. We're forming teams by grade this fall.",
 
   // ── "Can you help?" — turn your signups into your volunteer bench ──────────────────────────
-  // Every new team needs a second grown-up in the room, and your co-coach is almost always already
-  // in your own signup pool. Asking HERE — right after a parent has committed their child — converts
-  // far better than asking cold, months earlier. List ANY number of options (they stack); each is a
-  // checkbox, and the ticked ones ride along in the signup as `helpWith` (semicolon-separated).
+  // This is not optional politeness — it is a registration blocker. FIRST requires TWO
+  // background-screened lead coaches for the whole season, and as of 2026–27 you cannot even
+  // open your youth roster until both have cleared Youth Protection. So you need a second name
+  // before you need anything else, and your co-coach is almost always already in your own signup
+  // pool: asking HERE — right after a parent has committed their child — converts far better than
+  // asking cold, months earlier. List ANY number of options (they stack); each is a checkbox, and
+  // the ticked ones ride along in the signup as `helpWith` (semicolon-separated).
   // Set to [] to hide the whole block.
   helpOptions: [
     "Be a co-coach with me",
