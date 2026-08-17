@@ -26,7 +26,7 @@ window.TEAM_CONFIG = {
   coachEmail:   "coach@example.com",  // questions + mailto fallback — shown publicly
   // Roster size — "Only N spots". Know the real cap before you promise it: for 2026–27 a
   // traditional FLL Explore team is 2 adult coaches + 2–6 kids, and Challenge is up to 10.
-  // A Class Pack holds up to 24 but costs $715/season vs $150 and can't attend an official
+  // A Class Pack holds up to 24 but costs $2,900/season vs $500 and can't attend an official
   // festival. Setting this ABOVE the cap on purpose is a legitimate strategy — extra signups
   // become a second team and, more importantly, a bigger pool to find your co-coach in (see
   // helpOptions below) — but say so in spotsLine so no family thinks they're guaranteed a seat.
@@ -35,9 +35,13 @@ window.TEAM_CONFIG = {
   schoolName:   "your school",        // full school name (footer/disclaimer)
 
   // ── Which FIRST LEGO League division? (drives the grade/age copy + the grade buttons) ─────────
-  // For the 2026–27 BIOGLOW season the divisions are: Explore (Grades 2–4 / ages 6–10, LEGO SPIKE),
-  // Challenge (Grades 4–8), and the Future Edition K–2 (ages 5–7) & 3–8 tracks. Set these to match —
-  // OR keep it wide to gauge interest first, then form the right team(s) from who signs up.
+  // 2026–27 BIOGLOW runs TWO editions in parallel, and picking a kit means picking an edition:
+  //   • Founders Edition (the classic path) — Explore, Grades 2–4 / ages 6–10, on LEGO® Education
+  //     SPIKE™ Essential; and Challenge, Grades 4–8, on SPIKE Prime.
+  //   • Future Edition (the new path) — Grades K–2 (ages 5–7) and 3–8, on LEGO® Education Computer
+  //     Science & AI kits. Note there is NO Explore division in Future Edition.
+  // Set these to match your choice — OR keep it wide to gauge interest first, then form the right
+  // team(s) from who signs up. (This is the last FLL season either way; see AGENTS.md §3.)
   gradeBand:    "Grades K–2",         // the "Who" line + share text
   ageRange:     "ages 5–7",           // shown next to the grade band
   audience:     "kindergartners",     // hero: "…League team for {audience}"

@@ -116,9 +116,21 @@ Awareness → signup → confirmation → roster:
 > - **Two screened lead coaches are mandatory**, not aspirational. As of 2026–27 a team cannot access
 >   its youth roster until *both* Lead Coach 1 and 2 clear Youth Protection, and FMA won't let a team
 >   register for an event unless FIRST shows it `Event Ready`. This is why `helpOptions` exists.
-> - **Roster caps:** Explore traditional = 2 coaches + **2–6 kids** ($150/season); Class Pack = up to 24
->   with one facilitator ($715, and *cannot* attend an official festival). `spots` is free-form, so a
->   coach can over-recruit deliberately — but the kit should never imply a seat it can't deliver.
+> - **Roster caps:** Explore traditional = 2 coaches + **2–6 kids**; Class Pack = up to 24 with one
+>   facilitator (and *cannot* attend an official festival). `spots` is free-form, so a coach can
+>   over-recruit deliberately — but the kit should never imply a seat it can't deliver.
+> - **Cost, 2026–27 (corrected Aug 17 2026 — the old $150/$715 figures in this file were pre-restructure
+>   and wrong):** Explore **traditional = $500**, which is registration **plus one SPIKE Essential set**;
+>   **Class Pack = $2,900** (registration + six sets). The fee excludes shipping and **festival
+>   registration**. FIRST recommends **one set per four students**, so a 6-kid team wants two. Coaches who
+>   already own a SPIKE Essential still pay the bundled price unless a registration-only path exists —
+>   flag that unknown rather than promising a cheaper number.
+> - **Two editions run in parallel this season, and it's a division choice, not a kit upgrade.**
+>   **Founders Edition** = the classic path: Explore (ages 6–10) on **SPIKE Essential** (or WeDo 2.0),
+>   Challenge on SPIKE Prime (or EV3). **Future Edition** = the new path on **LEGO Education Computer
+>   Science & AI** kits, with grade bands **K–2 and 3–8** and **no Explore division at all**. A coach
+>   asking "which kit?" is really choosing an edition. Note SPIKE Essential was listed as available from
+>   LEGO Education only **until 30 Jun 2026**, so existing sets hold their value.
 > - **2026–27 BIOGLOW is the final FIRST LEGO League season**; LEGO Education relaunches it as
 >   "LEGO League" in 2027. Don't write copy that assumes an open-ended FLL future — and note this is a
 >   *recruiting asset*, since it makes a coach's ask a one-season commitment with a published end date.
