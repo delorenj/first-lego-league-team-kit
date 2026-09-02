@@ -13,6 +13,11 @@ apps/web/config.js
 # The committed templates are recruiting/**/*.md; personal *.filled.md copies stay local, like config.js.
 recruiting/**/*.filled.md
 
+# Personal outreach artifacts — exported mail threads, saved correspondence. These carry a real
+# name, address, phone and thread contents; this repo is public. Same posture as *.filled.md.
+recruiting/**/*.pdf
+!recruiting/flyer/lego-league-flyer.pdf
+
 # The kit ships its OWN Claude Code tooling (a machine-global gitignore excludes .claude/).
 # Re-include only the two product artifacts — the orchestrator agent and the deploy skill —
 # and keep everything else in .claude/ ignored (local settings, the BMAD skill cache, etc.).
