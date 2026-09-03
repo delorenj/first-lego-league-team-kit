@@ -1,0 +1,226 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>FIRST LEGO League — Clinton flyer</title>
+<!--
+  THE FLYER SOURCE. Edit this, then run ./build.sh to regenerate lego-league-flyer.pdf.
+  Never hand-edit the PDF: it used to be a source-less artifact, which is how it drifted to a
+  stale grade band and a coach count that was not true.
+
+  Team-specific values come from apps/web/config.js (falling back to config.example.js), so the
+  flyer and the signup site cannot disagree about grades, town, school, or URL.
+
+  The QR in src/ encodes lego.delo.sh. Deploying elsewhere means regenerating it — see README.md.
+-->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  @page { size: 8.5in 11in; margin: 0; }
+  :root{
+    --red:#D01012; --yellow:#F6BE00; --blue:#0057A6; --green:#00873E;
+    --ink:#1a1a2e; --muted:#55556b; --paper:#FFFDF7;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:8.5in;height:11in}
+  body{
+    font-family:'Poppins','Segoe UI',system-ui,-apple-system,sans-serif;
+    background:var(--paper); color:var(--ink);
+    padding:.40in .45in .32in;
+    display:flex; flex-direction:column;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+
+  /* ── stud strip ───────────────────────────────────────────── */
+  .studs{display:flex;gap:5px;margin-bottom:10px}
+  .stud{height:17px;flex:1;border:2.5px solid var(--ink);border-radius:5px}
+  .s1{background:var(--red)}.s2{background:var(--yellow)}
+  .s3{background:var(--blue)}.s4{background:var(--green)}
+
+  .kicker{
+    font-size:9.4px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--red);margin-bottom:5px;line-height:1.4;
+  }
+  h1{
+    font-size:55px;font-weight:800;letter-spacing:-.026em;line-height:.93;margin-bottom:10px;
+  }
+  h1 .b{color:var(--blue)} h1 .c{color:var(--red)} h1 .p{color:var(--green)}
+  .subhead{font-size:12.3px;line-height:1.45;color:var(--muted);margin-bottom:13px;max-width:7.3in}
+  .subhead strong{color:var(--ink);font-weight:600}
+
+  /* ── who / what / when / cost ─────────────────────────────── */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:11px}
+  .chip{
+    border:2.5px solid var(--ink);border-radius:10px;background:#fff;
+    box-shadow:4px 4px 0 var(--ink);padding:10px 12px 11px;
+  }
+  .chip h3{
+    font-size:10.4px;font-weight:800;letter-spacing:.13em;margin-bottom:5px;
+    display:flex;align-items:center;gap:5px;
+  }
+  .chip h3::before{content:"";width:10px;height:10px;border:2px solid var(--ink);border-radius:2px}
+  .chip.k-who   h3::before{background:var(--red)}
+  .chip.k-what  h3::before{background:var(--blue)}
+  .chip.k-when  h3::before{background:var(--green)}
+  .chip.k-cost  h3::before{background:var(--yellow)}
+  .chip p{font-size:10.5px;line-height:1.42;color:var(--muted)}
+  .chip p strong{color:var(--ink);font-weight:600}
+
+  /* ── the two honesty panels ───────────────────────────────── */
+  .panel{
+    border:2.5px solid var(--ink);border-radius:10px;
+    box-shadow:4px 4px 0 var(--ink);padding:10px 13px 11px;margin-bottom:11px;
+  }
+  .panel h4{font-size:10.8px;font-weight:800;letter-spacing:.06em;margin-bottom:5px}
+  .panel p{font-size:10.5px;line-height:1.44}
+  .band{background:#fffbe9}
+  .band h4{color:var(--ink)}
+  .band p{color:#4a4636}
+  .coach{background:#eaf2fb}
+  .coach h4{color:var(--blue)}
+  .coach p{color:#2f4257}
+  .coach .tag{color:var(--red);font-weight:700}
+
+  /* ── call to action ───────────────────────────────────────── */
+  .cta{
+    display:flex;gap:15px;align-items:center;
+    border:3px solid var(--ink);border-radius:12px;background:#fff;
+    box-shadow:5px 5px 0 var(--ink);padding:13px 15px;margin-bottom:10px;
+  }
+  .cta img{width:1.34in;height:1.34in;display:block;border:2.5px solid var(--ink);border-radius:7px;padding:3px;background:#fff}
+  .cta .txt{flex:1}
+  .cta h2{font-size:19px;font-weight:800;letter-spacing:-.014em;margin-bottom:5px}
+  .cta p{font-size:10.5px;line-height:1.44;color:var(--muted)}
+  .cta .url{
+    display:inline-block;margin-top:7px;font-size:17.5px;font-weight:800;color:var(--blue);
+    letter-spacing:-.01em;border-bottom:3px solid var(--yellow);
+  }
+
+  footer{
+    margin-top:auto;font-size:7.9px;line-height:1.5;color:var(--muted);
+    text-align:center;border-top:2px solid var(--ink);padding-top:6px;
+  }
+</style>
+
+<div class="studs"><i class="stud s1"></i><i class="stud s2"></i><i class="stud s3"></i><i class="stud s4"></i></div>
+
+<p class="kicker" id="kicker"></p>
+
+<h1><span class="b">BUILD.</span> <span class="c">CODE.</span> <span class="p">PLAY.</span></h1>
+
+<p class="subhead" id="subhead"></p>
+
+<div class="grid">
+  <div class="chip k-who">  <h3>WHO</h3>  <p id="who"></p></div>
+  <div class="chip k-what"> <h3>WHAT</h3> <p id="what"></p></div>
+  <div class="chip k-when"> <h3>WHEN</h3> <p id="when"></p></div>
+  <div class="chip k-cost"> <h3>COST</h3> <p id="cost"></p></div>
+</div>
+
+<div class="panel band">
+  <h4>ONE HONEST NOTE ABOUT GRADES</h4>
+  <p id="band"></p>
+</div>
+
+<div class="panel coach">
+  <h4><span class="tag">COACHES WANTED</span> — yes, you</h4>
+  <p id="coach"></p>
+</div>
+
+<div class="cta">
+  <img id="qr" alt="QR code to the signup page">
+  <div class="txt">
+    <h2 id="ctaTitle"></h2>
+    <p id="ctaBody"></p>
+    <span class="url" id="ctaUrl"></span>
+  </div>
+</div>
+
+<footer id="footer"></footer>
+
+<!-- Order matters: the example loads first as a floor, then a real config.js (git-ignored,
+     absent in a fresh clone) overwrites window.TEAM_CONFIG and wins. -->
+<script src="../../apps/web/config.example.js" onerror="this.dataset.missing=1"></script>
+<script src="../../apps/web/config.js" onerror="this.dataset.missing=1"></script>
+<script src="src/qr.js"></script>
+<script>
+(function () {
+  var c = window.TEAM_CONFIG || {};
+  function cfg(v, d) { return (v === undefined || v === null || v === '') ? d : v; }
+
+  var school    = cfg(c.schoolName,  'our school');
+  var gradeBand = cfg(c.gradeBand,   'Grades K–3');
+  var ageRange  = cfg(c.ageRange,    'ages 5–9');
+  var band      = gradeBand.replace(/^Grades\s+/i, '');
+  var siteUrl   = cfg(c.siteUrl,     'https://lego.delo.sh');
+  var bareUrl   = siteUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
+  var email     = cfg(c.coachEmail,  'coach@example.com');
+  var coach     = cfg(c.coachName,   'the coach');
+  var season    = cfg(c.seasonLabel, 'Fall 2026');
+
+  function set(id, html) { var el = document.getElementById(id); if (el) el.innerHTML = html; }
+
+  set('kicker',
+    'New for ' + season + ' &bull; A parent-run team for ' + school + ' families &bull; ' + gradeBand);
+
+  set('subhead',
+    "I'm starting a <strong>FIRST&reg; LEGO&reg; League</strong> team for kids in <strong>" + band + "</strong>, " +
+    "and the first step is finding out who wants in. They'll build LEGO machines, code them to actually do " +
+    "something, and figure out why they don't work the first time. <strong>No experience needed</strong> " +
+    "&mdash; for the kids or the grown-ups.");
+
+  set('who',
+    school + " families with kids in <strong>" + band + " (" + ageRange + ")</strong>. No experience needed &mdash; " +
+    "just curiosity and a love of snapping bricks together. Parents are welcome to stick around at meetings; " +
+    "I'd rather have you there than not. One thing worth knowing before you sign up: <strong>" + band +
+    " won't all be one team.</strong> The note below explains why.");
+
+  set('what',
+    "FIRST LEGO League is a global youth robotics program that runs on LEGO Education kits. A small team of " +
+    "kids builds a model, programs it, fixes what doesn't work, and &mdash; if we get a team registered in " +
+    "time &mdash; takes it to a season-end celebration with other New Jersey teams. <strong>Teamwork and " +
+    "problem-solving, dressed up as playing with LEGO.</strong> That's the whole point.");
+
+  set('when',
+    "<strong>About an hour a week</strong>, starting this fall and running into late winter, aiming at a " +
+    "season-end event. The exact day, time, and meeting spot get set once I see who signs up &mdash; " +
+    "sign-ups first, calendar second.");
+
+  set('cost',
+    "There is a real cost &mdash; FIRST charges <strong>per team, not per child</strong>, and it gets split " +
+    "across the roster. I'm not putting a number on it until I know which division we land in and how many " +
+    "kids are in, because those two things move it a lot. <strong>Signing up costs nothing and commits you " +
+    "to nothing</strong>; nobody owes a dollar until there's a real team and a real number I can show you. " +
+    "If cost is the thing standing in your way, tell me and we'll work it out.");
+
+  set('band',
+    "FIRST LEGO League splits its divisions by grade, and <strong>no single one covers " + band + "</strong>. " +
+    "So I'm gauging interest across the whole band first, then building whatever team &mdash; or teams &mdash; " +
+    "the sign-ups can actually support. Some grades may have to wait a year, mine included: I have a " +
+    "kindergartner and a third grader, and they probably won't end up on the same team. " +
+    "<strong>Better you hear that from me now than in November.</strong>");
+
+  set('coach',
+    "FIRST won't hand a team its roster until <strong>two grown-ups</strong> have cleared its background " +
+    "screening. I'm doing mine. Another parent has offered to be the second &mdash; nothing is locked in, and " +
+    "more names in the hat is better, so if you want that seat, tick the box on the sign-up form. " +
+    "<strong>Zero robotics experience required:</strong> I handle all the LEGO and all the code. What FIRST " +
+    "needs from you is your name on the team, a background check through them, about an hour a week, and one " +
+    "day at the season-end event. I need a second grown-up in the room, not a second engineer.");
+
+  set('ctaTitle', 'Scan to sign up in 30 seconds');
+  set('ctaBody',
+    "Point your phone's camera at the code, or type in the address below. Signing up isn't a commitment " +
+    "&mdash; it just tells me your child's grade so I can work out what team is even possible. " +
+    "<strong>It comes to me, not to the school</strong>, and I'll delete it any time you ask. Questions? " +
+    "Email " + coach + " &mdash; a " + school + " dad (one in kindergarten, one in third grade) and the " +
+    "parent putting this together: <strong>" + email + "</strong>");
+  set('ctaUrl', bareUrl);
+
+  set('footer',
+    "A parent-led community team for " + school + " families &bull; FIRST&reg; LEGO&reg; League 2026&ndash;27 " +
+    "season &bull; firstlegoleague.org &bull; " + bareUrl + "<br>" +
+    "LEGO&reg; and FIRST&reg; are trademarks of their respective owners. <strong>Organized by volunteer " +
+    "parents; not sponsored by or affiliated with FIRST, the LEGO Group, or " + school + ".</strong>");
+
+  var qr = document.getElementById('qr');
+  if (qr && window.FLYER_QR_DATA_URI) { qr.src = window.FLYER_QR_DATA_URI; }
+})();
+</script>
